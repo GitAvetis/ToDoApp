@@ -1,3 +1,4 @@
+using ToDoWebApplication.Services;
 
 namespace ToDoWebApplication
 {
@@ -15,6 +16,7 @@ namespace ToDoWebApplication
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddSingleton<ListService>();
+            builder.Services.AddSingleton<TaskService>();
 
 
             var app = builder.Build();

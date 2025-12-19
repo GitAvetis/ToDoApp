@@ -1,4 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using ToDoWebApplication.DTOs;
+using ToDoWebApplication.Models;
+using ToDoWebApplication.Services;
 
 namespace ToDoWebApplication.Controllers
 {
@@ -7,32 +11,52 @@ namespace ToDoWebApplication.Controllers
 
     public class ListsController : ControllerBase
     {
-        private static List<ListModel> _lists = new List<ListModel>();
-        private static int _nextId = 1;
-        [HttpGet]
-        public IEnumerable<ListModel> GetLists()
+        private readonly ListService _listService;
+        private readonly TaskService _taskService;
+
+
+        public ListsController(ListService listService, TaskService taskService)
         {
-            return _lists;
+            _listService = listService;
+            _taskService = taskService;
+        }
+
+        [HttpGet]
+        public IActionResult GetLists()
+        {
+            return Ok(_listService.GetAll());
+        }
+
+        [HttpGet("{listId}")]
+        public IActionResult GetList(int listId)
+        {
+            ListModel list = _listService.GetById(listId);
+            if (list == null)
+                return NotFound($"List {listId} not found");
+
+            return Ok(list);
         }
 
         [HttpPost]
-        public IActionResult CreateList([FromBody] ListModel newList)//Этот атрибут говорит ASP.NET Core, что объект newList нужно получить из тела HTTP-запроса (JSON).
+        public IActionResult CreateList([FromBody] CreateListRequest request)//Этот атрибут говорит ASP.NET Core, что объект newList нужно получить из тела HTTP-запроса (JSON).
         {
-            newList.Id = _nextId++;
-            _lists.Add(newList);
-            return CreatedAtAction(nameof(GetLists), new { id = newList.Id }, newList);//Возвращает статус 201 Created с информацией о созданном ресурсе.
+            if(string.IsNullOrWhiteSpace(request.Name))//Проверка на пустое или состоящее из пробелов имя списка.
+            {
+                return BadRequest("List name cannot be empty.");//Возвращает статус 400 Bad Request с сообщением об ошибке.
+            }
+            var list = _listService.AddList(request.Name);
+            return CreatedAtAction(nameof(GetList), new { listId = list.Id }, list);//Возвращает статус 201 Created с информацией о созданном ресурсе.
           //  return Ok(newList);//Возвращает статус 200 OK с созданным ресурсом в теле ответа.
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteList(int id)
+        [HttpDelete("{listId}")]
+        public IActionResult DeleteList(int listId)
         {
-            var list = _lists.FirstOrDefault(l => l.Id == id);
-            if (list == null)
-            {
-                return NotFound();
-            }
-            _lists.Remove(list);
+            if(!_listService.Exists(listId))
+                return NotFound($"List {listId} not found");
+
+            _taskService.RemoveByListId(listId);
+            _listService.RemoveList(listId);
             return NoContent();
         }
     }
