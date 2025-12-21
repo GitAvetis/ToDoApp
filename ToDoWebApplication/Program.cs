@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+using ToDoWebApplication.Exceptions;
 using ToDoWebApplication.Services;
 
 namespace ToDoWebApplication
@@ -18,6 +20,25 @@ namespace ToDoWebApplication
             builder.Services.AddSingleton<ListService>();
             builder.Services.AddSingleton<TaskService>();
 
+            builder.Services.Configure<ApiBehaviorOptions>(options =>//Настройка пользовательского ответа (ДТО не прошёл проверку).
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var errors = context.ModelState//формируем словарь ошибок.
+                        .Where(e => e.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(er => er.ErrorMessage).ToArray()
+                        );
+
+                    var problemDetails = new ValidationProblemDetails(errors)//Создаём объект ValidationProblemDetails с ошибками.
+                    {
+                        Title = "Validation failed",
+                        Status = StatusCodes.Status400BadRequest
+                    };
+                    return new BadRequestObjectResult(problemDetails);//Возвращаем HTTP 400 BadRequest с телом problemDetails
+                };
+            });
 
             var app = builder.Build();
 
@@ -28,10 +49,11 @@ namespace ToDoWebApplication
                 app.UseSwaggerUI();
             }
 
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

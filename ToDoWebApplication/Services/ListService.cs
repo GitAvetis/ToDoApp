@@ -1,4 +1,5 @@
-﻿using ToDoWebApplication.Models;
+﻿using ToDoWebApplication.Exceptions;
+using ToDoWebApplication.Models;
 
 namespace ToDoWebApplication.Services
 {
@@ -13,9 +14,10 @@ namespace ToDoWebApplication.Services
             return _listOfLists.Any(l => l.Id == listId);
         }
 
-        public ListModel? GetById(int listId)
+        public ListModel GetById(int listId)
         {
-            return _listOfLists.FirstOrDefault(l => l.Id == listId);
+            return _listOfLists.FirstOrDefault(l => l.Id == listId) ?? throw new ListNotFoundException(listId);
+
         }
 
         public IReadOnlyList<ListModel> GetAll()
@@ -31,15 +33,10 @@ namespace ToDoWebApplication.Services
             return list;
         }
 
-        public bool RemoveList(int listId)
+        public void RemoveList(int listId)
         {
-            ListModel list = _listOfLists.FirstOrDefault(l => l.Id == listId);
-
-            if (list == null)
-                return false;
-
+            ListModel list = GetById(listId) ?? throw new ListNotFoundException(listId);
             _listOfLists.Remove(list);
-            return true;
         }
 
     }

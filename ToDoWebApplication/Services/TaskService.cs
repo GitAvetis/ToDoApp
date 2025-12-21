@@ -1,4 +1,6 @@
-﻿using ToDoWebApplication.Models;
+﻿using ToDoWebApplication.DTOs;
+using ToDoWebApplication.Exceptions;
+using ToDoWebApplication.Models;
 
 namespace ToDoWebApplication.Services
 {
@@ -20,37 +22,59 @@ namespace ToDoWebApplication.Services
 
         public IReadOnlyList<TaskModel> GetAllTaskByListId(int listId)
         {
+            if (!ListExists(listId))
+                throw new ListNotFoundException(listId);
             return _listOfTasks.Where(t => t.ListId == listId).ToList();
         }
 
-        public TaskModel? GetById(int taskId, int listId)
+        public TaskModel GetById(int listId, int taskId)
         {
-            return _listOfTasks.FirstOrDefault(t => t.Id == taskId && t.ListId == listId);
+            if (!ListExists(listId))
+                throw new ListNotFoundException(listId);
+            TaskModel task = _listOfTasks.FirstOrDefault(t => t.Id == taskId && t.ListId == listId) ??
+                throw new TaskNotFoundException(listId, taskId);
+            return task;
         }
 
         public TaskModel AddTask(int listId, string taskDescription)
         {
-            if (_listService.Exists(listId) == false)
-                throw new ArgumentException("List with the given ID does not exist.");
+            if (!ListExists(listId))
+                throw new ListNotFoundException(listId);
             _lastTaskId++;
             TaskModel task = new TaskModel() { Id = _lastTaskId, Description = taskDescription, IsCompleted = false, ListId = listId };
             _listOfTasks.Add(task);
             return task;
         }
 
-        public bool RemoveTask(int listId, int taskId)
+        public void RemoveTask(int listId, int taskId)
         {
-            if (!ListExists(listId))
-                return false;
-            TaskModel task = _listOfTasks.FirstOrDefault(t => t.Id == taskId && t.ListId == listId);
-            if (task == null)
-                return false;
+            TaskModel task = GetById(listId, taskId) ?? throw new TaskNotFoundException(listId, taskId);
             _listOfTasks.Remove(task);
-            return true;
+        }
+
+        public void ReplaceTask(int listId, int taskId, string description, bool isCompleted)
+        {
+            TaskModel task = GetById(listId, taskId) ?? throw new TaskNotFoundException(listId, taskId);
+
+            task.Description = description;
+            task.IsCompleted = isCompleted;
+        }
+
+        public void UpdateTask(int listId, int taskId, UpdateTaskRequest request)
+        {
+            TaskModel task = GetById(listId, taskId);// ?? throw new TaskNotFoundException(listId, taskId);
+
+            if (request.Description != null)
+                task.Description = request.Description;
+
+            if (request.IsCompleted.HasValue)
+                task.IsCompleted = request.IsCompleted.Value;
         }
 
         public int RemoveByListId(int listId)
         {
+            if (!ListExists(listId))
+                throw new ListNotFoundException(listId);
             return _listOfTasks.RemoveAll(t => t.ListId == listId);
         }
 
