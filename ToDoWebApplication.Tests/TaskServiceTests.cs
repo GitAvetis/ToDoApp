@@ -18,10 +18,13 @@ namespace ToDoWebApplication.Tests
         [Fact]
         public void AddTask_ShouldReturnNewTask()
         {
+            // Arrange
             var list = _listService.AddList("My List");
-
+            
+            // Act
             var task = _taskService.AddTask(list.Id, "My Task");
 
+            // Assert
             Assert.NotNull(task);
             Assert.Equal("My Task", task.Description);
             Assert.False(task.IsCompleted);

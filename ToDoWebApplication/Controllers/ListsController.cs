@@ -36,8 +36,14 @@ namespace ToDoWebApplication.Controllers
         [HttpPost]
         public IActionResult CreateList([FromBody] CreateListRequest request)//Этот атрибут говорит ASP.NET Core, что объект newList нужно получить из тела HTTP-запроса (JSON).
         {
-            var list = _listService.AddList(request.Name);
-            return CreatedAtAction(nameof(GetList), new { listId = list.Id }, list);//Возвращает статус 201 Created с информацией о созданном ресурсе.
+            ListModel list = _listService.AddList(request.Name);
+            ListDto listForResponse = new()
+            { 
+                Id = list.Id,
+                Name = request.Name
+            };
+
+            return CreatedAtAction(nameof(GetList), new { listId = listForResponse.Id }, listForResponse);//Возвращает статус 201 Created с информацией о созданном ресурсе.
         }
 
         [HttpDelete("{listId}")]

@@ -19,6 +19,7 @@ namespace ToDoWebApplication
 
             builder.Services.AddSingleton<ListService>();
             builder.Services.AddSingleton<TaskService>();
+            builder.Services.AddSingleton<ListApplicationService>();
 
             builder.Services.Configure<ApiBehaviorOptions>(options =>//Настройка пользовательского ответа (ДТО не прошёл проверку).
             {
