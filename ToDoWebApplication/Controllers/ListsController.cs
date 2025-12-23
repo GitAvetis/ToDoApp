@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ToDoWebApplication.DTOs;
-using ToDoWebApplication.Models;
-using ToDoWebApplication.Services;
+using ToDoWebApplication.Application.Services;
+using ToDoWebApplication.Application.Services.Interfaces;
+using ToDoWebApplication.Domain.Models;
+using ToDoWebApplication.Contracts.DTOs;
 
 namespace ToDoWebApplication.Controllers
 {
@@ -10,11 +11,11 @@ namespace ToDoWebApplication.Controllers
 
     public class ListsController : ControllerBase
     {
-        private readonly ListService _listService;
+        private readonly IListService _listService;
         private readonly ListApplicationService _listApplicationService;
 
 
-        public ListsController(ListService listService, ListApplicationService listApplicationService)
+        public ListsController(IListService listService, ListApplicationService listApplicationService)
         {
             _listService = listService;
             _listApplicationService = listApplicationService;

@@ -1,6 +1,6 @@
-﻿namespace ToDoWebApplication.Models
+﻿namespace ToDoWebApplication.Contracts.DTOs
 {
-    public class TaskModel
+    public class TaskDto
     {
         public int Id { get; set; }
         public string Description { get; set; } = string.Empty;

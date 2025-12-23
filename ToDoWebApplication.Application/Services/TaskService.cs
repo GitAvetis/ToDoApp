@@ -1,15 +1,15 @@
-﻿using ToDoWebApplication.DTOs;
-using ToDoWebApplication.Exceptions;
-using ToDoWebApplication.Models;
+﻿using ToDoWebApplication.Application.Services.Interfaces;
+using ToDoWebApplication.Domain.Exceptions;
+using ToDoWebApplication.Domain.Models;
 
-namespace ToDoWebApplication.Services
+namespace ToDoWebApplication.Application.Services
 {
-    public class TaskService
+    public class TaskService : ITaskService
     {
         private List<TaskModel> _listOfTasks = new List<TaskModel>();
-        private readonly ListService _listService;
+        private readonly IListService _listService;
 
-        public TaskService(ListService listService)
+        public TaskService(IListService listService)
         {
             _listService = listService;
         }
@@ -60,15 +60,15 @@ namespace ToDoWebApplication.Services
             task.IsCompleted = isCompleted;
         }
 
-        public void UpdateTask(int listId, int taskId, UpdateTaskRequest request)
+        public void UpdateTask(int listId, int taskId, string? description, bool? isCompleted)
         {
             TaskModel task = GetById(listId, taskId);// ?? throw new TaskNotFoundException(listId, taskId);
 
-            if (request.Description != null)
-                task.Description = request.Description;
+            if (description != null)
+                task.Description = description;
 
-            if (request.IsCompleted.HasValue)
-                task.IsCompleted = request.IsCompleted.Value;
+            if (isCompleted.HasValue)
+                task.IsCompleted = isCompleted.Value;
         }
 
         public int RemoveByListId(int listId)

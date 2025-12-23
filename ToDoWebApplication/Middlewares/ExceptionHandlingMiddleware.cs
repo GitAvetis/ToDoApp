@@ -1,6 +1,7 @@
-﻿using ToDoWebApplication.Controllers;
+﻿using ToDoWebApplication.Common;
+using ToDoWebApplication.Domain.Exceptions;
 
-namespace ToDoWebApplication.Exceptions
+namespace ToDoWebApplication.Middlewares
 {
     public class ExceptionHandlingMiddleware
     {

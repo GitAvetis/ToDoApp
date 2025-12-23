@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ToDoWebApplication.DTOs
+namespace ToDoWebApplication.Contracts.DTOs
 {
     public class CreateListRequest
     {

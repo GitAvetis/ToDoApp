@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ToDoWebApplication.DTOs;
-using ToDoWebApplication.Exceptions;
-using ToDoWebApplication.Models;
-using ToDoWebApplication.Services;
+using ToDoWebApplication.Application.Services.Interfaces;
+using ToDoWebApplication.Domain.Models;
+using ToDoWebApplication.Contracts.DTOs;
 
 namespace ToDoWebApplication.Controllers
 {
@@ -10,13 +9,11 @@ namespace ToDoWebApplication.Controllers
     [Route("lists/{listId}/tasks")]
     public class ListTasksController : ControllerBase
     {
-        private readonly TaskService _taskService;
-        private readonly ListService _listService;
+        private readonly ITaskService _taskService;
 
-        public ListTasksController(TaskService taskService, ListService listService)
+        public ListTasksController(ITaskService taskService)
         {
             _taskService = taskService;
-            _listService = listService;
         }
 
         [HttpGet]
@@ -51,7 +48,7 @@ namespace ToDoWebApplication.Controllers
         [HttpPatch("{taskId}")]
         public IActionResult UpdateTask(int listId, int taskId, [FromBody] UpdateTaskRequest request)
         {
-            _taskService.UpdateTask(listId, taskId, request);
+            _taskService.UpdateTask(listId, taskId, request.Description, request.IsCompleted);
             return NoContent();
         }
 

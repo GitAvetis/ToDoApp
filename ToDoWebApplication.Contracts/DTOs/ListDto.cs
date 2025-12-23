@@ -1,6 +1,6 @@
-﻿namespace ToDoWebApplication.Models
+﻿namespace ToDoWebApplication.Contracts.DTOs
 {
-    public class ListModel
+    public class ListDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

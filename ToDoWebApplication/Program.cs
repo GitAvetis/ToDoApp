@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using ToDoWebApplication.Exceptions;
-using ToDoWebApplication.Services;
+using ToDoWebApplication.Application.Services;
+using ToDoWebApplication.Application.Services.Interfaces;
+using ToDoWebApplication.Middlewares;
 
 namespace ToDoWebApplication
 {
@@ -17,8 +18,8 @@ namespace ToDoWebApplication
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddSingleton<ListService>();
-            builder.Services.AddSingleton<TaskService>();
+            builder.Services.AddSingleton<IListService, ListService>();
+            builder.Services.AddSingleton<ITaskService, TaskService>();
             builder.Services.AddSingleton<ListApplicationService>();
 
             builder.Services.Configure<ApiBehaviorOptions>(options =>//Настройка пользовательского ответа (ДТО не прошёл проверку).

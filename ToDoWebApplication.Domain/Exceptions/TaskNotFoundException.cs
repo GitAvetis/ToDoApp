@@ -1,4 +1,4 @@
-﻿namespace ToDoWebApplication.Exceptions
+﻿namespace ToDoWebApplication.Domain.Exceptions
 {
     public class TaskNotFoundException : Exception
     {

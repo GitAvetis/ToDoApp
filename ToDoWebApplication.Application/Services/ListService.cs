@@ -1,9 +1,10 @@
-﻿using ToDoWebApplication.Exceptions;
-using ToDoWebApplication.Models;
+﻿using ToDoWebApplication.Application.Services.Interfaces;
+using ToDoWebApplication.Domain.Exceptions;
+using ToDoWebApplication.Domain.Models;
 
-namespace ToDoWebApplication.Services
+namespace ToDoWebApplication.Application.Services
 {
-    public class ListService
+    public class ListService : IListService
     {
         private List<ListModel> _listOfLists = new List<ListModel>();
         private int _lastListId;

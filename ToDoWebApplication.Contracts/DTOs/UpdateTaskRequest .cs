@@ -1,4 +1,4 @@
-﻿namespace ToDoWebApplication.DTOs
+﻿namespace ToDoWebApplication.Contracts.DTOs
 {
     public class UpdateTaskRequest
     {

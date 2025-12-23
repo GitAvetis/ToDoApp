@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using ToDoWebApplication.DTOs;
+using ToDoWebApplication.Contracts.DTOs;
 
 namespace ToDoWebApplication.Tests.Integration
 {
@@ -52,6 +52,7 @@ namespace ToDoWebApplication.Tests.Integration
             // assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
+
         [Fact]
         public async Task Delete_NonExistentList_ShouldReturn404()
         {
@@ -65,6 +66,7 @@ namespace ToDoWebApplication.Tests.Integration
         [Fact]
         public async Task CascadeDelete_ListWithTasks_ShouldRemoveTasks()
         {
+
             // arrange
             var listRequest = new CreateListRequest { Name = "List to Delete with Tasks" };
             var taskRequest = new CreateTaskRequest { Description = "Task to Delete" };
@@ -297,6 +299,3 @@ namespace ToDoWebApplication.Tests.Integration
     }
 
 }
-
-
-

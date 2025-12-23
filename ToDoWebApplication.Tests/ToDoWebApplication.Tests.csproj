@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ToDoWebApplication.Domain\ToDoWebApplication.Domain.csproj" />
     <ProjectReference Include="..\ToDoWebApplication\ToDoWebApplication.csproj" />
   </ItemGroup>
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ToDoWebApplication.Controllers
+namespace ToDoWebApplication.Common
 {
     public static class ApiErrors
     {
@@ -8,7 +8,7 @@ namespace ToDoWebApplication.Controllers
         {
             return new ProblemDetails
             {
-                Title = "List not found",
+                Title = "Invalid request",
                 Status = StatusCodes.Status404NotFound,
                 Detail = $"List {listId} not found",
                 Extensions = { ["listId"] = listId }
@@ -19,7 +19,7 @@ namespace ToDoWebApplication.Controllers
         {
             return new ProblemDetails
             {
-                Title = "List Name Empty",
+                Title = "Invalid request",
                 Status = StatusCodes.Status400BadRequest,
                 Detail = "List name cannot be empty."
             };
@@ -29,7 +29,7 @@ namespace ToDoWebApplication.Controllers
         {
             return new ProblemDetails
             {
-                Title = "Task not found",
+                Title = "Invalid request",
                 Status = StatusCodes.Status404NotFound,
                 Detail = $"Task {taskId} not found in list {listId}",
                 Extensions =
@@ -44,7 +44,7 @@ namespace ToDoWebApplication.Controllers
         {
             return new ProblemDetails
             {
-                Title = "Description task empty",
+                Title = "Invalid request",
                 Status = StatusCodes.Status400BadRequest,
                 Detail = "Description cannot be empty"
             };

@@ -1,5 +1,5 @@
-using ToDoWebApplication.Services;
-using ToDoWebApplication.Exceptions;
+using ToDoWebApplication.Domain.Exceptions;
+using ToDoWebApplication.Application.Services;
 
 namespace ToDoWebApplication.Tests
 {

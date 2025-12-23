@@ -1,6 +1,5 @@
-﻿using ToDoWebApplication.DTOs;
-using ToDoWebApplication.Exceptions;
-using ToDoWebApplication.Services;
+﻿using ToDoWebApplication.Domain.Exceptions;
+using ToDoWebApplication.Application.Services;
 namespace ToDoWebApplication.Tests
 {
 
@@ -56,11 +55,7 @@ namespace ToDoWebApplication.Tests
             var list = _listService.AddList("My List");
             var task = _taskService.AddTask(list.Id, "Old Description");
 
-            _taskService.UpdateTask(list.Id, task.Id, new UpdateTaskRequest
-            {
-                Description = "New Description",
-                IsCompleted = true
-            });
+            _taskService.UpdateTask(list.Id, task.Id, "New Description",true);
 
             var updated = _taskService.GetById(list.Id, task.Id);
             Assert.Equal("New Description", updated.Description);

@@ -1,11 +1,13 @@
-﻿namespace ToDoWebApplication.Services
+﻿using ToDoWebApplication.Application.Services.Interfaces;
+
+namespace ToDoWebApplication.Application.Services
 {
     public class ListApplicationService
     {
-        private readonly ListService _listService;
-        private readonly TaskService _taskService;
+        private readonly IListService _listService;
+        private readonly ITaskService _taskService;
 
-        public ListApplicationService(ListService listService, TaskService taskService)
+        public ListApplicationService(IListService listService, ITaskService taskService)
         {
             _listService = listService;
             _taskService = taskService;
