@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using ToDoWebApplication.Application.Repositories.Interfaces;
 using ToDoWebApplication.Application.Services;
 using ToDoWebApplication.Application.Services.Interfaces;
 using ToDoWebApplication.Middlewares;
+using ToDoWebApplication.Repositories.InMemory;
 
 namespace ToDoWebApplication
 {
@@ -17,10 +19,11 @@ namespace ToDoWebApplication
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
-            builder.Services.AddSingleton<IListService, ListService>();
-            builder.Services.AddSingleton<ITaskService, TaskService>();
-            builder.Services.AddSingleton<ListApplicationService>();
+            builder.Services.AddSingleton<IListRepository, InMemoryListRepository>();
+            builder.Services.AddSingleton<ITaskRepository, InMemoryTaskRepository>();
+            builder.Services.AddScoped<IListService, ListService>();//Scoped:1 запрос = 1 консистентное состояние
+            builder.Services.AddScoped<ITaskService, TaskService>();
+            builder.Services.AddScoped<IListApplicationService, ListApplicationService>();
 
             builder.Services.Configure<ApiBehaviorOptions>(options =>//Настройка пользовательского ответа (ДТО не прошёл проверку).
             {

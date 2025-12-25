@@ -1,13 +1,14 @@
-﻿using ToDoWebApplication.Domain.Models;
+﻿using ToDoWebApplication.Contracts.DTOs;
+using ToDoWebApplication.Domain.Models;
 
 namespace ToDoWebApplication.Application.Services.Interfaces
 {
     public interface IListService
     {
         bool Exists(int listId);
-        public ListModel GetById(int listId);
-        public IReadOnlyList<ListModel> GetAll();
-        public ListModel AddList(string listName);
+        public ListDto GetById(int listId);
+        public IReadOnlyList<ListDto> GetAll();
+        public ListDto AddList(string listName);
         public void RemoveList(int listId);
 
     }

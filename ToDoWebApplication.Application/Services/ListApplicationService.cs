@@ -2,7 +2,7 @@
 
 namespace ToDoWebApplication.Application.Services
 {
-    public class ListApplicationService
+    public class ListApplicationService : IListApplicationService
     {
         private readonly IListService _listService;
         private readonly ITaskService _taskService;

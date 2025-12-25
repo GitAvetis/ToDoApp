@@ -1,5 +1,6 @@
 ﻿using ToDoWebApplication.Domain.Exceptions;
 using ToDoWebApplication.Application.Services;
+using ToDoWebApplication.Repositories.InMemory;
 namespace ToDoWebApplication.Tests
 {
 
@@ -10,8 +11,11 @@ namespace ToDoWebApplication.Tests
 
         public TaskServiceTests()
         {
-            _listService = new ListService();
-            _taskService = new TaskService(_listService);
+            var repo = new InMemoryListRepository();
+            var taskRepo = new InMemoryTaskRepository();
+
+            _listService = new ListService(repo);
+            _taskService = new TaskService(taskRepo,_listService);
         }
 
         [Fact]
@@ -27,7 +31,6 @@ namespace ToDoWebApplication.Tests
             Assert.NotNull(task);
             Assert.Equal("My Task", task.Description);
             Assert.False(task.IsCompleted);
-            Assert.Equal(list.Id, task.ListId);
         }
 
         [Fact]

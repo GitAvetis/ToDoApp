@@ -1,44 +1,47 @@
-﻿using ToDoWebApplication.Application.Services.Interfaces;
-using ToDoWebApplication.Domain.Exceptions;
+﻿using ToDoWebApplication.Application.Mapping;
+using ToDoWebApplication.Application.Repositories.Interfaces;
+using ToDoWebApplication.Application.Services.Interfaces;
+using ToDoWebApplication.Contracts.DTOs;
 using ToDoWebApplication.Domain.Models;
 
 namespace ToDoWebApplication.Application.Services
 {
     public class ListService : IListService
     {
-        private List<ListModel> _listOfLists = new List<ListModel>();
-        private int _lastListId;
+        private readonly IListRepository _repository;
 
+        public ListService(IListRepository repository)
+        {
+            _repository = repository;
+        }
 
         public bool Exists(int listId)
         {
-            return _listOfLists.Any(l => l.Id == listId);
+            return _repository.Exists(listId);
         }
 
-        public ListModel GetById(int listId)
+        public ListDto GetById(int listId)
         {
-            return _listOfLists.FirstOrDefault(l => l.Id == listId) ?? throw new ListNotFoundException(listId);
-
+            ListModel list = _repository.GetById(listId);
+            return list.ToDto();
         }
 
-        public IReadOnlyList<ListModel> GetAll()
+        public IReadOnlyList<ListDto> GetAll()
         {
-            return _listOfLists.AsReadOnly();
+            return _repository.GetAll()
+            .Select(list => list.ToDto()).ToList();
         }
 
-        public ListModel AddList(string listName)
+        public ListDto AddList(string name)
         {
-            _lastListId++;
-            ListModel list = new ListModel() { Id = _lastListId, Name = listName };
-            _listOfLists.Add(list);
-            return list;
+            ListModel list = _repository.Add(name);
+            return list.ToDto();
         }
 
         public void RemoveList(int listId)
         {
-            ListModel list = GetById(listId) ?? throw new ListNotFoundException(listId);
-            _listOfLists.Remove(list);
-        }
+            _repository.Remove(listId);
 
+        }
     }
 }

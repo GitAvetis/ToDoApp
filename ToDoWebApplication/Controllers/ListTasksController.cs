@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ToDoWebApplication.Application.Services.Interfaces;
-using ToDoWebApplication.Domain.Models;
 using ToDoWebApplication.Contracts.DTOs;
 
 namespace ToDoWebApplication.Controllers
@@ -19,31 +18,33 @@ namespace ToDoWebApplication.Controllers
         [HttpGet]
         public IActionResult GetTasks(int listId)
         {
-            return Ok(_taskService.GetAllTaskByListId(listId));
+            var tasks = _taskService.GetAllTaskByListId(listId);
+            return Ok(tasks);
         }
 
         [HttpGet("{taskId}")]
         public IActionResult GetTask(int listId, int taskId)
         {
-            TaskModel? task = _taskService.GetById(listId, taskId);
-            return Ok(task);
+            var taskDto = _taskService.GetById(listId, taskId);
+            return Ok(taskDto);
         }
 
         [HttpPost]
         public IActionResult CreateTask(int listId, [FromBody] CreateTaskRequest request)
         {
             //ASP.NET вернёт свой ValidationProblemDetails.
-            var task = _taskService.AddTask(listId, request.Description);
-            return CreatedAtAction(nameof(GetTask), new { listId, taskId = task.Id }, task);//Возвращает статус 201 Created с информацией о созданном ресурсе.
+            var taskDto = _taskService.AddTask(listId, request.Description);
+
+            return CreatedAtAction(nameof(GetTask), new { listId, taskId = taskDto.Id }, taskDto);//Возвращает статус 201 Created с информацией о созданном ресурсе.
 
         }
 
-        [HttpPut("{taskId}")]
-        public IActionResult ReplaceTask(int listId, int taskId, [FromBody] ReplaceTaskRequest request)
-        {
-            _taskService.ReplaceTask(listId, taskId, request.Description, request.IsCompleted);
-            return NoContent();
-        }
+        //[HttpPut("{taskId}")]
+        //public IActionResult ReplaceTask(int listId, int taskId, [FromBody] ReplaceTaskRequest request)
+        //{
+        //    _taskService.ReplaceTask(listId, taskId, request.Description, request.IsCompleted);
+        //    return NoContent();
+        //}
 
         [HttpPatch("{taskId}")]
         public IActionResult UpdateTask(int listId, int taskId, [FromBody] UpdateTaskRequest request)

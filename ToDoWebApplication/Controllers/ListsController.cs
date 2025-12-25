@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ToDoWebApplication.Application.Services;
 using ToDoWebApplication.Application.Services.Interfaces;
-using ToDoWebApplication.Domain.Models;
 using ToDoWebApplication.Contracts.DTOs;
 
 namespace ToDoWebApplication.Controllers
@@ -12,10 +10,10 @@ namespace ToDoWebApplication.Controllers
     public class ListsController : ControllerBase
     {
         private readonly IListService _listService;
-        private readonly ListApplicationService _listApplicationService;
+        private readonly IListApplicationService _listApplicationService;
 
 
-        public ListsController(IListService listService, ListApplicationService listApplicationService)
+        public ListsController(IListService listService, IListApplicationService listApplicationService)
         {
             _listService = listService;
             _listApplicationService = listApplicationService;
@@ -24,27 +22,23 @@ namespace ToDoWebApplication.Controllers
         [HttpGet]
         public IActionResult GetLists()
         {
-            return Ok(_listService.GetAll());
+            var lists = _listService.GetAll();
+            return Ok(lists);
         }
 
         [HttpGet("{listId}")]
         public IActionResult GetList(int listId)
         {
-            ListModel list = _listService.GetById(listId);
+            ListDto list = _listService.GetById(listId);
             return Ok(list);
         }
 
         [HttpPost]
         public IActionResult CreateList([FromBody] CreateListRequest request)//Этот атрибут говорит ASP.NET Core, что объект newList нужно получить из тела HTTP-запроса (JSON).
         {
-            ListModel list = _listService.AddList(request.Name);
-            ListDto listForResponse = new()
-            { 
-                Id = list.Id,
-                Name = request.Name
-            };
+            ListDto list = _listService.AddList(request.Name);
 
-            return CreatedAtAction(nameof(GetList), new { listId = listForResponse.Id }, listForResponse);//Возвращает статус 201 Created с информацией о созданном ресурсе.
+            return CreatedAtAction(nameof(GetList), new { listId = list.Id }, list);//Возвращает статус 201 Created с информацией о созданном ресурсе.
         }
 
         [HttpDelete("{listId}")]
