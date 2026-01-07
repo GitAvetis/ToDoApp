@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ToDoWebApplication.Application.Repositories.Interfaces;
 using ToDoWebApplication.Application.Services;
 using ToDoWebApplication.Application.Services.Interfaces;
+using ToDoWebApplication.Infrastructure.Persistence;
+using ToDoWebApplication.Infrastructure.Repositories;
 using ToDoWebApplication.Middlewares;
-using ToDoWebApplication.Repositories.InMemory;
 
 namespace ToDoWebApplication
 {
@@ -16,11 +18,16 @@ namespace ToDoWebApplication
             // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            builder.Services.AddSingleton<IListRepository, InMemoryListRepository>();
-            builder.Services.AddSingleton<ITaskRepository, InMemoryTaskRepository>();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddSwaggerGen(); 
+            //Ef
+            builder.Services.AddDbContext<AppDbContext>
+                (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddScoped<IListRepository, EfListRepository>();
+            builder.Services.AddScoped<ITaskRepository, EfTaskRepository>();
+
             builder.Services.AddScoped<IListService, ListService>();//Scoped:1 запрос = 1 консистентное состояние
             builder.Services.AddScoped<ITaskService, TaskService>();
             builder.Services.AddScoped<IListApplicationService, ListApplicationService>();

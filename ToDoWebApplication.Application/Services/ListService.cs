@@ -2,6 +2,7 @@
 using ToDoWebApplication.Application.Repositories.Interfaces;
 using ToDoWebApplication.Application.Services.Interfaces;
 using ToDoWebApplication.Contracts.DTOs;
+using ToDoWebApplication.Domain.Exceptions;
 using ToDoWebApplication.Domain.Models;
 
 namespace ToDoWebApplication.Application.Services
@@ -25,6 +26,13 @@ namespace ToDoWebApplication.Application.Services
             ListModel list = _repository.GetById(listId);
             return list.ToDto();
         }
+        /// <summary>
+        /// Только для внутреннего использования другими сервисами, не для контроллеров.
+        /// </summary>
+        public ListModel GetDomainById(int listId)
+        {
+            return _repository.GetById(listId);
+        }
 
         public IReadOnlyList<ListDto> GetAll()
         {
@@ -32,9 +40,21 @@ namespace ToDoWebApplication.Application.Services
             .Select(list => list.ToDto()).ToList();
         }
 
-        public ListDto AddList(string name)
+        public ListDto AddRootList(string name, ListType type)
         {
-            ListModel list = _repository.Add(name);
+            if (type != ListType.Container && type != ListType.Tasks)
+                throw new ArgumentOutOfRangeException(nameof(type));
+            ListModel list = _repository.Add(name, ListType.Container, null);
+            return list.ToDto();
+        }
+
+        public ListDto AddChildList(string name, int parentListId)
+        {
+            ListModel parent = GetDomainById(parentListId);
+            if (parent.Type != ListType.Container)
+                throw new TaskListParentMustBeContainerException(parentListId);
+
+            ListModel list = _repository.Add(name, ListType.Tasks, parentListId);
             return list.ToDto();
         }
 

@@ -3,6 +3,7 @@ using ToDoWebApplication.Application.Repositories.Interfaces;
 using ToDoWebApplication.Application.Services.Interfaces;
 using ToDoWebApplication.Contracts.DTOs;
 using ToDoWebApplication.Domain.Exceptions;
+using ToDoWebApplication.Domain.Models;
 
 namespace ToDoWebApplication.Application.Services
 {
@@ -40,7 +41,11 @@ namespace ToDoWebApplication.Application.Services
 
         public TaskDto AddTask(int listId, string taskDescription)
         {
-            EnsureListExists(listId);
+            var list = _listService.GetDomainById(listId);
+
+            if (list.Type != ListType.Tasks)
+                throw new TaskInContainerListException(listId);
+
             var task = _taskRepository.Add(listId, taskDescription);
             return task.ToDto();
         }

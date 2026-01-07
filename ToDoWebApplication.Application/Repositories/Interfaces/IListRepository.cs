@@ -7,7 +7,7 @@ namespace ToDoWebApplication.Application.Repositories.Interfaces
         bool Exists(int listId);
         ListModel GetById(int listId);
         IReadOnlyList<ListModel> GetAll();
-        ListModel Add(string name);
+        ListModel Add(string listName, ListType type, int? parentListId = null);
         void Remove(int listId);
     }
 }

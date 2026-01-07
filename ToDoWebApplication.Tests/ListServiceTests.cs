@@ -8,13 +8,18 @@ namespace ToDoWebApplication.Tests
     public class ListServiceTests
     {
         [Fact]
-        public void AddList_ShouldReturnNewList()
+        public void AddList_ShouldReturnNewContainerList()
         {
             var repo = new InMemoryListRepository();
             var service = new ListService(repo);
-            var list = service.AddList("My List");
+
+            var list = service.AddRootList("My List", Domain.Models.ListType.Container);
+            var domainList = service.GetDomainById(list.Id);
+
+
             Assert.NotNull(list);
             Assert.Equal("My List", list.Name);
+            Assert.Equal(Domain.Models.ListType.Container, domainList.Type);
             Assert.True(list.Id > 0);
         }
         [Fact]
@@ -29,7 +34,7 @@ namespace ToDoWebApplication.Tests
         {
             var repo = new InMemoryListRepository();
             var service = new ListService(repo);
-            var list = service.AddList("Temp List");
+            var list = service.AddRootList("My List", Domain.Models.ListType.Container);
             service.RemoveList(list.Id);
             Assert.Throws<ListNotFoundException>(() => service.GetById(list.Id));
         }
@@ -38,7 +43,7 @@ namespace ToDoWebApplication.Tests
         {
             var repo = new InMemoryListRepository();
             var service = new ListService(repo);
-            var list = service.AddList("Existing List"); 
+            var list = service.AddRootList("My List", Domain.Models.ListType.Container);
             Assert.True(service.Exists(list.Id));
 
         }

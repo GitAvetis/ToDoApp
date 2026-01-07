@@ -1,15 +1,16 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using ToDoWebApplication.Contracts.DTOs;
+using ToDoWebApplication.Domain.Models;
 
 namespace ToDoWebApplication.Tests.Integration
 {
-    public class HealthCheckTests
+    public class IntegrationTests
         : IClassFixture<CustomWebApplicationFactory>
     {
         private readonly HttpClient _client;
 
-        public HealthCheckTests(CustomWebApplicationFactory factory)
+        public IntegrationTests(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
         }
@@ -18,13 +19,13 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Post_Lists_WithEmptyName_ShouldReturn400()
         {
             // arrange
-            var request = new CreateListRequest
+            var request = new CreateContainerListRequest
             {
                 Name = ""
             };
 
             // act
-            var response = await _client.PostAsJsonAsync("/lists", request);
+            var response = await _client.PostAsJsonAsync("/lists/root", request);
 
             // assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -68,10 +69,10 @@ namespace ToDoWebApplication.Tests.Integration
         {
 
             // arrange
-            var listRequest = new CreateListRequest { Name = "List to Delete with Tasks" };
+            var listRequest = new CreateContainerListRequest { Name = "List for Task", Type = ListType.Tasks };
             var taskRequest = new CreateTaskRequest { Description = "Task to Delete" };
 
-            var postListResponse = await _client.PostAsJsonAsync("/lists", listRequest);
+            var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
 
             await _client.PostAsJsonAsync($"/lists/{list!.Id}/tasks", taskRequest);
@@ -90,12 +91,13 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Post_Lists_ShouldReturn201AndCreatedList()
         {
             // arrange
-            var request = new CreateListRequest
+            var request = new CreateContainerListRequest
             {
-                Name = "New Integration Test List"
+                Name = "New Integration Test List",
+                Type = ListType.Container
             };
             // act
-            var response = await _client.PostAsJsonAsync("/lists", request);
+            var response = await _client.PostAsJsonAsync("/lists/root", request);
 
             var createdList = await response.Content.ReadFromJsonAsync<ListDto>();
 
@@ -111,13 +113,14 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Get_List_ById_ShouldReturnCreatedList()
         {
             // arrange
-            var request = new CreateListRequest
+            var request = new CreateContainerListRequest
             {
-                Name = "New Integration Test List for GET"
+                Name = "New Integration Test List for GET",
+                Type = ListType.Container
             };
             // act
 
-            var postResponse = await _client.PostAsJsonAsync("/lists", request);
+            var postResponse = await _client.PostAsJsonAsync("/lists/root", request);
             postResponse.EnsureSuccessStatusCode();
 
             var createdList = await postResponse.Content.ReadFromJsonAsync<ListDto>();
@@ -145,14 +148,15 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Delete_List_ShouldRemoveSuccessfully()
         {
             // arrange
-            var request = new CreateListRequest
+            var request = new CreateContainerListRequest
             {
-                Name = "New Integration Test List for Delete"
+                Name = "New Integration Test List for Delete",
+                Type = ListType.Container
             };
 
             // act
 
-            var postResponse = await _client.PostAsJsonAsync("/lists", request);
+            var postResponse = await _client.PostAsJsonAsync("/lists/root", request);
             postResponse.EnsureSuccessStatusCode();
 
             var createdList = await postResponse.Content.ReadFromJsonAsync<ListDto>();
@@ -169,19 +173,62 @@ namespace ToDoWebApplication.Tests.Integration
 
         }
 
+        //[Fact]
+        //public async Task Post_Task_ShouldReturn201AndCreatedTask()
+        //{
+        //    // arrange
+        //    var rootListRequest = new CreateRootListRequest
+        //    {
+        //        Name = "List for lists of tasks",
+        //        Type = ListType.Container
+        //    };
+        //    var postRootListResponse = await _client.PostAsJsonAsync("/lists/root", rootListRequest);
+        //    var list = await postRootListResponse.Content.ReadFromJsonAsync<ListDto>();
+
+        //    var taskRequest = new CreateTaskRequest
+        //    {
+        //        Description = "New Task"
+        //    };
+        //    // act
+        //    var response = await _client.PostAsJsonAsync($"/lists/{list!.Id}/tasks", taskRequest);
+
+        //    // assert
+        //    Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        //    var createdTask = await response.Content.ReadFromJsonAsync<TaskDto>();
+        //    Assert.NotNull(createdTask);
+        //    Assert.Equal("New Task", createdTask!.Description);
+        //    Assert.False(createdTask.IsCompleted);
+        //}
         [Fact]
         public async Task Post_Task_ShouldReturn201AndCreatedTask()
         {
             // arrange
-            var listRequest = new CreateListRequest { Name = "List for Task" };
-            var taskRequest = new CreateTaskRequest { Description = "New Task" };
+            var listRequest = new CreateContainerListRequest
+            {
+                Name = "List for Task",
+                Type = ListType.Tasks
+            };
+
+            var taskRequest = new CreateTaskRequest
+            {
+                Description = "New Task"
+            };
+
             // act
-            var postListResponse = await _client.PostAsJsonAsync("/lists", listRequest);
+            var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
+            postListResponse.EnsureSuccessStatusCode();
+
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
-            var response = await _client.PostAsJsonAsync($"/lists/{list!.Id}/tasks", taskRequest);
+            Assert.NotNull(list);
+
+            var response = await _client.PostAsJsonAsync(
+                $"/lists/{list!.Id}/tasks",
+                taskRequest
+            );
 
             // assert
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
             var createdTask = await response.Content.ReadFromJsonAsync<TaskDto>();
             Assert.NotNull(createdTask);
             Assert.Equal("New Task", createdTask!.Description);
@@ -193,11 +240,11 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Get_Tasks_ShouldReturnAllTasksForList()
         {
             // arrange
-            var listRequest = new CreateListRequest { Name = "List with 2 Tasks" };
+            var listRequest = new CreateContainerListRequest { Name = "List for Task", Type = ListType.Tasks };
             var taskRequest1 = new CreateTaskRequest { Description = " Task 1" };
             var taskRequest2 = new CreateTaskRequest { Description = " Task 2" };
             // act
-            var postListResponse = await _client.PostAsJsonAsync("/lists", listRequest);
+            var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
             await _client.PostAsJsonAsync($"/lists/{list!.Id}/tasks", taskRequest1);
             await _client.PostAsJsonAsync($"/lists/{list!.Id}/tasks", taskRequest2);
@@ -205,7 +252,7 @@ namespace ToDoWebApplication.Tests.Integration
             // assert
             var getResponse = await _client.GetAsync($"/lists/{list.Id}/tasks");
             Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-            var tasks = await getResponse.Content.ReadFromJsonAsync<List<ListDto>>();
+            var tasks = await getResponse.Content.ReadFromJsonAsync<List<TaskDto>>();
             Assert.True(2 == tasks!.Count);
         }
 
@@ -214,10 +261,10 @@ namespace ToDoWebApplication.Tests.Integration
         {
             {
                 // arrange
-                var listRequest = new CreateListRequest { Name = "List with 2 Tasks" };
+                var listRequest = new CreateContainerListRequest { Name = "List with 2 Tasks", Type = ListType.Tasks };
                 var taskRequest = new CreateTaskRequest { Description = " Task 1" };
                 // act
-                var postListResponse = await _client.PostAsJsonAsync("/lists", listRequest);
+                var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
                 var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
 
                 var taskResponse = await _client.PostAsJsonAsync($"/lists/{list!.Id}/tasks", taskRequest);
@@ -235,14 +282,17 @@ namespace ToDoWebApplication.Tests.Integration
                 Assert.True(updatedTask!.IsCompleted);
 
             }
-
         }
 
         [Fact]
         public async Task Get_NonExistentTask_ShouldReturn404()
         {
-            var listRequest = new CreateListRequest { Name = "List for NonExistentTask" };
-            var postListResponse = await _client.PostAsJsonAsync("/lists", listRequest);
+            var listRequest = new CreateContainerListRequest
+            {
+                Name = "List for NonExistentTask",
+                Type = ListType.Container
+            };
+            var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
 
             var getResponse = await _client.GetAsync($"/lists/{list!.Id}/tasks/9999");
@@ -253,8 +303,12 @@ namespace ToDoWebApplication.Tests.Integration
         [Fact]
         public async Task Patch_NonExistentTask_ShouldReturn404()
         {
-            var listRequest = new CreateListRequest { Name = "List for NonExistentPatch" };
-            var postListResponse = await _client.PostAsJsonAsync("/lists", listRequest);
+            var listRequest = new CreateContainerListRequest
+            {
+                Name = "List for NonExistentPatch",
+                Type = ListType.Container
+            };
+            var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
 
             var patchRequest = new UpdateTaskRequest { Description = "Updated", IsCompleted = true };
@@ -266,8 +320,8 @@ namespace ToDoWebApplication.Tests.Integration
         [Fact]
         public async Task Delete_NonExistentTask_ShouldReturn404()
         {
-            var listRequest = new CreateListRequest { Name = "List for NonExistentDeleteTask" };
-            var postListResponse = await _client.PostAsJsonAsync("/lists", listRequest);
+            var listRequest = new CreateContainerListRequest { Name = "List for NonExistentDeleteTask", Type = ListType.Container };
+            var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
 
             var deleteResponse = await _client.DeleteAsync($"/lists/{list!.Id}/tasks/9999");
@@ -276,10 +330,77 @@ namespace ToDoWebApplication.Tests.Integration
         }
 
         [Fact]
+        public async Task Post_Task_InContainerList_ShouldReturn400()
+        {
+            // arrange
+            var listRequest = new CreateContainerListRequest
+            {
+                Name = "Container List",
+                Type = ListType.Container // список не для задач
+            };
+            var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
+            var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
+
+            var taskRequest = new CreateTaskRequest { Description = "Task in wrong list" };
+
+            // act
+            var postTaskResponse = await _client.PostAsJsonAsync($"/lists/{list!.Id}/tasks", taskRequest);
+
+            // assert
+            Assert.Equal(HttpStatusCode.BadRequest, postTaskResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Post_TaskList_WithTaskListAsParent_ShouldReturn400()
+        {
+            // arrange
+            // 1. Создаём контейнер
+            var listRequest = new CreateContainerListRequest
+            {
+                Name = "Root Container",
+                Type = ListType.Container
+            };
+
+            var containerResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
+            containerResponse.EnsureSuccessStatusCode();
+
+            var container = await containerResponse.Content.ReadFromJsonAsync<ListDto>();
+            Assert.NotNull(container);
+
+            // 2. Создаём список задач внутри контейнера
+            var taskListResponse = await _client.PostAsJsonAsync(
+                $"/lists/{container.Id}/children",
+                new CreateTaskListRequest
+                {
+                    Name = "Tasks List",
+                });
+
+            taskListResponse.EnsureSuccessStatusCode();
+            var taskList = await taskListResponse.Content.ReadFromJsonAsync<ListDto>();
+            Assert.NotNull(taskList);
+
+            // 3. Пытаемся создать список задач внутри списка задач (запрещено)
+            var invalidRequest = new CreateTaskListRequest
+            {
+                Name = "Invalid Nested Tasks",
+            };
+
+            // act
+            var response = await _client.PostAsJsonAsync($"/lists/{taskList.Id}/children", invalidRequest);
+
+            // assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
         public async Task Post_TaskWithEmptyDescription_ShouldReturn400()
         {
-            var listRequest = new CreateListRequest { Name = "List for InvalidTask" };
-            var postListResponse = await _client.PostAsJsonAsync("/lists", listRequest);
+            var listRequest = new CreateContainerListRequest
+            {
+                Name = "List for InvalidTask",
+                Type = ListType.Container
+            };
+            var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
 
             var taskRequest = new CreateTaskRequest { Description = "" };

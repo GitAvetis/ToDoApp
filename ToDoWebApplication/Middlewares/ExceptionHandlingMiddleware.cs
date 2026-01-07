@@ -26,7 +26,17 @@ namespace ToDoWebApplication.Middlewares
             catch (TaskNotFoundException ex)
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
-                await context.Response.WriteAsJsonAsync(ApiErrors.TaskNotFound(ex.ListId,ex.TaskId));
+                await context.Response.WriteAsJsonAsync(ApiErrors.TaskNotFound(ex.ListId, ex.TaskId));
+            }
+            catch (TaskInContainerListException ex)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsJsonAsync(new { Message = ex.Message });
+            }
+            catch (TaskListParentMustBeContainerException ex)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsJsonAsync(new { Message = ex.Message });
             }
             catch (Exception)
             {
