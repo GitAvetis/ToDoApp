@@ -9,18 +9,11 @@ namespace ToDoWebApplication.Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<ListModel> builder)
         {
             builder.ToTable("lists");
+            builder.HasKey(lm => lm.Id);
             builder.Property(lm => lm.Id).HasColumnName("id");
-            builder.Property(lm => lm.Name).HasColumnName("name");
-            builder.Property(lm => lm.ParentListId).HasColumnName("parent_list_id");
-            builder.Property(lm => lm.Type).HasColumnName("type");
-            builder.HasKey(lm=>lm.Id);
-            builder.Property(lm=>lm.Name).IsRequired().HasMaxLength(200);
-
-            // Self-reference
-            builder.HasOne(l => l.Parent)
-                   .WithMany(l => l.Children)
-                   .HasForeignKey(l => l.ParentListId)
-                   .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(lm => lm.Name).HasColumnName("name").IsRequired().HasMaxLength(200); ;
+            builder.Property(lm => lm.ParentListId).HasColumnName("parent_list_id").IsRequired(false);
+            builder.Property(lm => lm.Type).HasColumnName("type").IsRequired().HasConversion<int>();
 
             // Связь с задачами (один List = много Tasks)
             // При удалении списка удаляются все связанные задачи

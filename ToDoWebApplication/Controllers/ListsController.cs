@@ -33,18 +33,18 @@ namespace ToDoWebApplication.Controllers
             return Ok(list);
         }
 
-        [HttpPost("root")]
-        public IActionResult CreateRootList([FromBody] CreateContainerListRequest request)//Этот атрибут говорит ASP.NET Core, что объект newList нужно получить из тела HTTP-запроса (JSON).
+        [HttpPost]
+        public IActionResult CreateRootList([FromBody] CreateListRequest request)//Этот атрибут говорит ASP.NET Core, что объект newList нужно получить из тела HTTP-запроса (JSON).
         {
-            ListDto list = _listService.AddRootList(request.Name, request.Type);
+            ListDto list = _listService.AddRootList(request.Name);
 
             return CreatedAtAction(nameof(GetList), new { listId = list.Id }, list);//Возвращает статус 201 Created с информацией о созданном ресурсе.
         }
 
-        [HttpPost("{parentListId}/children")]
-        public IActionResult CreateChildSList(int parentListId, [FromBody] CreateTaskListRequest request)//Этот атрибут говорит ASP.NET Core, что объект newList нужно получить из тела HTTP-запроса (JSON).
+        [HttpPost("{parentId}/lists")]
+        public IActionResult CreateChildSList(int parentId, [FromBody] CreateListRequest request)//Этот атрибут говорит ASP.NET Core, что объект newList нужно получить из тела HTTP-запроса (JSON).
         {
-            ListDto list = _listService.AddChildList(request.Name, parentListId);
+            ListDto list = _listService.AddChildList(request.Name, parentId);
 
             return CreatedAtAction(nameof(GetList), new { listId = list.Id }, list);//Возвращает статус 201 Created с информацией о созданном ресурсе.
         }

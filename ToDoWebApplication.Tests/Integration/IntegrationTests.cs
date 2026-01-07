@@ -19,7 +19,7 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Post_Lists_WithEmptyName_ShouldReturn400()
         {
             // arrange
-            var request = new CreateContainerListRequest
+            var request = new CreateListRequest
             {
                 Name = ""
             };
@@ -69,7 +69,7 @@ namespace ToDoWebApplication.Tests.Integration
         {
 
             // arrange
-            var listRequest = new CreateContainerListRequest { Name = "List for Task", Type = ListType.Tasks };
+            var listRequest = new CreateListRequest { Name = "List for Task" };
             var taskRequest = new CreateTaskRequest { Description = "Task to Delete" };
 
             var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
@@ -91,10 +91,9 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Post_Lists_ShouldReturn201AndCreatedList()
         {
             // arrange
-            var request = new CreateContainerListRequest
+            var request = new CreateListRequest
             {
                 Name = "New Integration Test List",
-                Type = ListType.Container
             };
             // act
             var response = await _client.PostAsJsonAsync("/lists/root", request);
@@ -113,10 +112,9 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Get_List_ById_ShouldReturnCreatedList()
         {
             // arrange
-            var request = new CreateContainerListRequest
+            var request = new CreateListRequest
             {
                 Name = "New Integration Test List for GET",
-                Type = ListType.Container
             };
             // act
 
@@ -148,10 +146,9 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Delete_List_ShouldRemoveSuccessfully()
         {
             // arrange
-            var request = new CreateContainerListRequest
+            var request = new CreateListRequest
             {
                 Name = "New Integration Test List for Delete",
-                Type = ListType.Container
             };
 
             // act
@@ -203,10 +200,9 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Post_Task_ShouldReturn201AndCreatedTask()
         {
             // arrange
-            var listRequest = new CreateContainerListRequest
+            var listRequest = new CreateListRequest
             {
                 Name = "List for Task",
-                Type = ListType.Tasks
             };
 
             var taskRequest = new CreateTaskRequest
@@ -240,7 +236,7 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Get_Tasks_ShouldReturnAllTasksForList()
         {
             // arrange
-            var listRequest = new CreateContainerListRequest { Name = "List for Task", Type = ListType.Tasks };
+            var listRequest = new CreateListRequest { Name = "List for Task" };
             var taskRequest1 = new CreateTaskRequest { Description = " Task 1" };
             var taskRequest2 = new CreateTaskRequest { Description = " Task 2" };
             // act
@@ -261,7 +257,7 @@ namespace ToDoWebApplication.Tests.Integration
         {
             {
                 // arrange
-                var listRequest = new CreateContainerListRequest { Name = "List with 2 Tasks", Type = ListType.Tasks };
+                var listRequest = new CreateListRequest { Name = "List with 2 Tasks" };
                 var taskRequest = new CreateTaskRequest { Description = " Task 1" };
                 // act
                 var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
@@ -287,10 +283,9 @@ namespace ToDoWebApplication.Tests.Integration
         [Fact]
         public async Task Get_NonExistentTask_ShouldReturn404()
         {
-            var listRequest = new CreateContainerListRequest
+            var listRequest = new CreateListRequest
             {
                 Name = "List for NonExistentTask",
-                Type = ListType.Container
             };
             var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
@@ -303,10 +298,9 @@ namespace ToDoWebApplication.Tests.Integration
         [Fact]
         public async Task Patch_NonExistentTask_ShouldReturn404()
         {
-            var listRequest = new CreateContainerListRequest
+            var listRequest = new CreateListRequest
             {
                 Name = "List for NonExistentPatch",
-                Type = ListType.Container
             };
             var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
@@ -320,7 +314,7 @@ namespace ToDoWebApplication.Tests.Integration
         [Fact]
         public async Task Delete_NonExistentTask_ShouldReturn404()
         {
-            var listRequest = new CreateContainerListRequest { Name = "List for NonExistentDeleteTask", Type = ListType.Container };
+            var listRequest = new CreateListRequest { Name = "List for NonExistentDeleteTask" };
             var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
 
@@ -333,10 +327,9 @@ namespace ToDoWebApplication.Tests.Integration
         public async Task Post_Task_InContainerList_ShouldReturn400()
         {
             // arrange
-            var listRequest = new CreateContainerListRequest
+            var listRequest = new CreateListRequest
             {
                 Name = "Container List",
-                Type = ListType.Container // список не для задач
             };
             var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();
@@ -355,10 +348,9 @@ namespace ToDoWebApplication.Tests.Integration
         {
             // arrange
             // 1. Создаём контейнер
-            var listRequest = new CreateContainerListRequest
+            var listRequest = new CreateListRequest
             {
                 Name = "Root Container",
-                Type = ListType.Container
             };
 
             var containerResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
@@ -370,7 +362,7 @@ namespace ToDoWebApplication.Tests.Integration
             // 2. Создаём список задач внутри контейнера
             var taskListResponse = await _client.PostAsJsonAsync(
                 $"/lists/{container.Id}/children",
-                new CreateTaskListRequest
+                new CreateListRequest
                 {
                     Name = "Tasks List",
                 });
@@ -380,7 +372,7 @@ namespace ToDoWebApplication.Tests.Integration
             Assert.NotNull(taskList);
 
             // 3. Пытаемся создать список задач внутри списка задач (запрещено)
-            var invalidRequest = new CreateTaskListRequest
+            var invalidRequest = new CreateListRequest
             {
                 Name = "Invalid Nested Tasks",
             };
@@ -395,10 +387,9 @@ namespace ToDoWebApplication.Tests.Integration
         [Fact]
         public async Task Post_TaskWithEmptyDescription_ShouldReturn400()
         {
-            var listRequest = new CreateContainerListRequest
+            var listRequest = new CreateListRequest
             {
                 Name = "List for InvalidTask",
-                Type = ListType.Container
             };
             var postListResponse = await _client.PostAsJsonAsync("/lists/root", listRequest);
             var list = await postListResponse.Content.ReadFromJsonAsync<ListDto>();

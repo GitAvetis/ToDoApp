@@ -40,10 +40,8 @@ namespace ToDoWebApplication.Application.Services
             .Select(list => list.ToDto()).ToList();
         }
 
-        public ListDto AddRootList(string name, ListType type)
+        public ListDto AddRootList(string name)
         {
-            if (type != ListType.Container && type != ListType.Tasks)
-                throw new ArgumentOutOfRangeException(nameof(type));
             ListModel list = _repository.Add(name, ListType.Container, null);
             return list.ToDto();
         }

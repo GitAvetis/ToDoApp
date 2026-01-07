@@ -22,7 +22,7 @@ namespace ToDoWebApplication.Tests
         [Fact]
         public void AddTask_ShouldReturnNewTask()
         {
-            var container = _listService.AddRootList("Root", ListType.Container);
+            var container = _listService.AddRootList("Root");
 
             var taskList = _listService.AddChildList("My Tasks", container.Id);
 
@@ -36,7 +36,7 @@ namespace ToDoWebApplication.Tests
         [Fact]
         public void AddTask_ToContainerList_ShouldThrow()
         {
-            var list = _listService.AddRootList("My List", Domain.Models.ListType.Container);
+            var list = _listService.AddRootList("My List");
 
             Assert.Throws<TaskInContainerListException>(() => _taskService.AddTask(list.Id, "Some task"));
         }
@@ -44,7 +44,7 @@ namespace ToDoWebApplication.Tests
         [Fact]
         public void GetById_NonExistentTask_ShouldThrow()
         {
-            var container = _listService.AddRootList("Root", ListType.Container);
+            var container = _listService.AddRootList("Root");
 
             var taskList = _listService.AddChildList("My Tasks", container.Id);
 
@@ -55,7 +55,7 @@ namespace ToDoWebApplication.Tests
         [Fact]
         public void RemoveTask_ShouldRemoveSuccessfully()
         {
-            var container = _listService.AddRootList("Root", ListType.Container);
+            var container = _listService.AddRootList("Root");
 
             var taskList = _listService.AddChildList("My Tasks", container.Id);
             var task = _taskService.AddTask(taskList.Id, "Task to remove");
@@ -69,7 +69,7 @@ namespace ToDoWebApplication.Tests
         [Fact]
         public void UpdateTask_ShouldModifyTaskCorrectly()
         {
-            var container = _listService.AddRootList("Root", ListType.Container);
+            var container = _listService.AddRootList("Root");
 
             var taskList = _listService.AddChildList("My Tasks", container.Id);
             var task = _taskService.AddTask(taskList.Id, "Old Description");
@@ -84,7 +84,7 @@ namespace ToDoWebApplication.Tests
         [Fact]
         public void GetAllTaskByListId_ShouldReturnOnlyTasksForThatList()
         {
-            var container = _listService.AddRootList("Root", ListType.Container);
+            var container = _listService.AddRootList("Root");
             var list1 = _listService.AddChildList("Tasks1", container.Id);
             var list2 = _listService.AddChildList("Tasks2", container.Id);
 
