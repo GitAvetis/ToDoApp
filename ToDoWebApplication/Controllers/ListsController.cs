@@ -41,7 +41,7 @@ namespace ToDoWebApplication.Controllers
             return CreatedAtAction(nameof(GetList), new { listId = list.Id }, list);//Возвращает статус 201 Created с информацией о созданном ресурсе.
         }
 
-        [HttpPost("{parentId}/lists")]
+        [HttpPost("{parentId}/children")]
         public IActionResult CreateChildSList(int parentId, [FromBody] CreateListRequest request)//Этот атрибут говорит ASP.NET Core, что объект newList нужно получить из тела HTTP-запроса (JSON).
         {
             ListDto list = _listService.AddChildList(request.Name, parentId);
