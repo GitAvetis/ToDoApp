@@ -13,6 +13,10 @@ namespace ToDoWebApplication.Application.Services.Interfaces
         public ListDto AddChildList( string name, int parentListId);
         //public ListDto AddList(string listName, ListType type, int? parentListId = null);
         public void RemoveList(int listId);
+        public IReadOnlyList<ListDto> GetRootLists();
+        public IReadOnlyList<ListDto> GetChildLists(int parentId);
+
+
 
     }
 }

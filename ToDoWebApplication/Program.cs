@@ -52,6 +52,8 @@ namespace ToDoWebApplication
                 };
             });
 
+            builder.Services.AddRazorPages();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -68,6 +70,7 @@ namespace ToDoWebApplication
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapRazorPages();
 
             app.Run();
         }

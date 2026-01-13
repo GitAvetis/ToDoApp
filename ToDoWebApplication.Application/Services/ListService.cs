@@ -21,6 +21,21 @@ namespace ToDoWebApplication.Application.Services
             return _repository.Exists(listId);
         }
 
+        public IReadOnlyList<ListDto> GetRootLists()
+        {
+            return _repository.GetAll()
+                .Where(l => l.ParentListId == null)
+                .Select(l => l.ToDto())
+                .ToList();
+        }
+
+        public IReadOnlyList<ListDto> GetChildLists(int parentId)
+        {
+            return _repository.GetAll()
+                .Where(l => l.ParentListId == parentId)
+                .Select(l => l.ToDto())
+                .ToList();
+        }
         public ListDto GetById(int listId)
         {
             ListModel list = _repository.GetById(listId);

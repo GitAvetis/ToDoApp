@@ -1,0 +1,20 @@
+﻿@page
+@model ToDoWebApplication.Pages.IndexModel
+@{
+    <h1>ToDo Lists</h1>
+
+    <form method="post"> 
+        <input asp-for="NewListName" /> 
+        <button type="submit">Create container</button>
+    </form>
+
+    <ul> 
+    @foreach (var list in Model.Lists) 
+    {
+        <li> 
+            <a asp-page="/Lists/Container" asp-route-id="@list.Id"> @list.Name 
+            </a> 
+        </li>    
+    }
+    </ul>
+}

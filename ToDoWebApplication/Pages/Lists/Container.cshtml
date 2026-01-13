@@ -1,0 +1,25 @@
+﻿@page "{id:int}"
+@model ToDoWebApplication.Pages.ContainerModel
+@{
+    <h2>@Model.Container.Name</h2>
+
+    <form method="post" asp-page-handler="Create">
+        <input asp-for="NewListName" />
+        <button>Create task list</button>
+    </form>
+
+    <form method="post" asp-page-handler="Delete">
+        <button type="submit">Delete container</button>
+    </form>
+
+    <ul>
+        @foreach (var list in Model.TaskLists)
+        {
+            <li>
+                <a asp-page="/Lists/Tasks" asp-route-id="@list.Id">
+                    @list.Name
+                </a>
+            </li>
+        }
+    </ul>
+}
