@@ -39,13 +39,22 @@ namespace ToDoWebApplication.Application.Services
             return task.ToDto();
         }
 
+        //public TaskDto AddTask(int listId, string taskDescription)
+        //{
+        //    var list = _listService.GetDomainById(listId);
+
+        //    if (list.Type != ListType.Tasks)
+        //        throw new TaskInContainerListException(listId);
+
+        //    var task = _taskRepository.Add(listId, taskDescription);
+        //    return task.ToDto();
+        //}
+
         public TaskDto AddTask(int listId, string taskDescription)
         {
             var list = _listService.GetDomainById(listId);
 
-            if (list.Type != ListType.Tasks)
-                throw new TaskInContainerListException(listId);
-
+            // list ВСЕГДА TaskList
             var task = _taskRepository.Add(listId, taskDescription);
             return task.ToDto();
         }

@@ -29,7 +29,7 @@ namespace ToDoWebApplication.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -82,16 +82,6 @@ namespace ToDoWebApplication.Infrastructure.Migrations
                     b.ToTable("tasks", (string)null);
                 });
 
-            modelBuilder.Entity("ToDoWebApplication.Domain.Models.ListModel", b =>
-                {
-                    b.HasOne("ToDoWebApplication.Domain.Models.ListModel", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentListId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("ToDoWebApplication.Domain.Models.TaskModel", b =>
                 {
                     b.HasOne("ToDoWebApplication.Domain.Models.ListModel", null)
@@ -99,11 +89,6 @@ namespace ToDoWebApplication.Infrastructure.Migrations
                         .HasForeignKey("ListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ToDoWebApplication.Domain.Models.ListModel", b =>
-                {
-                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

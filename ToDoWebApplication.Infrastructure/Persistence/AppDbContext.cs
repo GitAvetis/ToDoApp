@@ -15,6 +15,11 @@ namespace ToDoWebApplication.Infrastructure.Persistence
         {
             // Автоматическое подключение всех конфигураций Fluent API
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+            
+            // Настройка автоинкремента для Id в ListModel
+            modelBuilder.Entity<ListModel>()
+                .Property(l => l.Id)
+                .UseIdentityAlwaysColumn();// PostgreSQL будет автоматически присваивать уникальный PK
         }
     }
 }

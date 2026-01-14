@@ -5,7 +5,7 @@ namespace ToDoWebApplication.Application.Mapping
 {
     public static class TaskMappingExtensions
     {
-        public static TaskDto ToDto(this TaskModel task)
+        public static TaskDto ToDto(this TaskModel task)//extension methods, чтобы удобнее было использовать в LINQ
         {
             return new TaskDto
             {

@@ -1,0 +1,87 @@
+﻿@page "{listId:int?}"
+@using ToDoWebApplication.Domain.Models
+@model ToDoWebApplication.Pages.DashboardModel
+
+<div style="display:flex; gap:20px">
+
+    <div style="width:250px; border-right:1px solid #ccc">
+        <h3>Lists</h3>
+
+        <form method="post" asp-page-handler="CreateList">
+            <input asp-for="NewListName" placeholder="New list name" />
+            <button type="submit">Add</button>
+        </form>
+
+        <ul>
+            @foreach (var list in Model.Lists)
+            {
+                <li>
+                    <a asp-page="/Dashboard"
+                       asp-route-listId="@list.Id">
+                        @list.Name
+                    </a>
+
+                    <form method="post"
+                          asp-page-handler="DeleteList"
+                          style="display:inline">
+                        <input type="hidden" name="listId" value="@list.Id" />
+                        <button type="submit">❌</button>
+                    </form>
+                </li>
+            }
+        </ul>
+       
+    </div>
+
+    <div style="flex:1">
+        <h3>Tasks</h3>
+
+        @if (Model.SelectedListId != null)
+        {
+            <form method="post" asp-page-handler="CreateTask">
+                <input type="hidden" asp-for="SelectedListId" />
+                <input asp-for="NewTaskDescription" />
+                <button>Add task</button>
+            </form>
+
+            <ul>
+                @foreach (var task in Model.Tasks)
+                {
+                    <li>
+                        <form method="post"
+                              asp-page-handler="ToggleTask"
+                              style="display:inline">
+
+                            <input type="hidden" name="listId" value="@Model.SelectedListId" />
+                            <input type="hidden" name="taskId" value="@task.Id" />
+
+                            <input type="checkbox"
+                                   name="isCompleted"
+                                   value="true"
+                                   onchange="this.form.submit()"
+                                   @(task.IsCompleted ? "checked" : "") />
+
+                            <span style="@(task.IsCompleted ? "text-decoration:line-through" : "")">
+                                @task.Description
+                            </span>
+                        </form>
+
+                        <form method="post"
+                              asp-page-handler="DeleteTask"
+                              style="display:inline">
+                            <input type="hidden" name="taskId" value="@task.Id" />
+                            <input type="hidden" name="listId" value="@Model.SelectedListId" />
+                            <button>❌</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Select a task list</p>
+        }
+
+    </div>
+
+</div>

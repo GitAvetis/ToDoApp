@@ -1,4 +1,5 @@
-﻿using ToDoWebApplication.Contracts.DTOs;
+﻿using System.Collections.Generic;
+using ToDoWebApplication.Contracts.DTOs;
 using ToDoWebApplication.Domain.Models;
 
 namespace ToDoWebApplication.Application.Mapping
@@ -10,7 +11,9 @@ namespace ToDoWebApplication.Application.Mapping
             return new ListDto
             {
                 Id = listDto.Id,
-                Name = listDto.Name
+                Name = listDto.Name,
+                Type = listDto.Type
+
             };
         }
     }

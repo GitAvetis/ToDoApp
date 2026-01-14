@@ -12,8 +12,8 @@ using ToDoWebApplication.Infrastructure.Persistence;
 namespace ToDoWebApplication.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251226165933_AddParentListIdToLists")]
-    partial class AddParentListIdToLists
+    [Migration("20260113040301_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,7 +32,7 @@ namespace ToDoWebApplication.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -85,16 +85,6 @@ namespace ToDoWebApplication.Infrastructure.Migrations
                     b.ToTable("tasks", (string)null);
                 });
 
-            modelBuilder.Entity("ToDoWebApplication.Domain.Models.ListModel", b =>
-                {
-                    b.HasOne("ToDoWebApplication.Domain.Models.ListModel", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentListId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("ToDoWebApplication.Domain.Models.TaskModel", b =>
                 {
                     b.HasOne("ToDoWebApplication.Domain.Models.ListModel", null)
@@ -102,11 +92,6 @@ namespace ToDoWebApplication.Infrastructure.Migrations
                         .HasForeignKey("ListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ToDoWebApplication.Domain.Models.ListModel", b =>
-                {
-                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }
