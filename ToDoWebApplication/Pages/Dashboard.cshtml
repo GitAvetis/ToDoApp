@@ -16,17 +16,32 @@
             @foreach (var list in Model.Lists)
             {
                 <li>
-                    <a asp-page="/Dashboard"
-                       asp-route-listId="@list.Id">
-                        @list.Name
-                    </a>
+                    @if (Model.EditingListId == list.Id)
+                    {
+                        <form method="post" asp-page-handler="UpdateList" style="display:inline">
+                            <input type="hidden" name="listId" value="@list.Id" />
+                            <input type="text" name="EditedListName" value="@list.Name" autofocus />
+                            <button type="submit">💾</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-page="/Dashboard" asp-route-listId="@list.Id">
+                            @list.Name
+                        </a>
 
-                    <form method="post"
-                          asp-page-handler="DeleteList"
-                          style="display:inline">
-                        <input type="hidden" name="listId" value="@list.Id" />
-                        <button type="submit">❌</button>
-                    </form>
+                        <!-- Edit button -->
+                        <form method="post" asp-page-handler="StartEditList" style="display:inline">
+                            <input type="hidden" name="listId" value="@list.Id" />
+                            <button type="submit" style="all:unset; cursor:pointer;">✏️</button>
+                        </form>
+
+                        <!-- Delete button -->
+                        <form method="post" asp-page-handler="DeleteList" style="display:inline">
+                            <input type="hidden" name="listId" value="@list.Id" />
+                            <button>❌</button>
+                        </form>
+                    }
                 </li>
             }
         </ul>
@@ -48,24 +63,54 @@
                 @foreach (var task in Model.Tasks)
                 {
                     <li>
+                        <!-- Toggle -->
                         <form method="post"
                               asp-page-handler="ToggleTask"
                               style="display:inline">
-
                             <input type="hidden" name="listId" value="@Model.SelectedListId" />
                             <input type="hidden" name="taskId" value="@task.Id" />
-
                             <input type="checkbox"
                                    name="isCompleted"
                                    value="true"
                                    onchange="this.form.submit()"
                                    @(task.IsCompleted ? "checked" : "") />
+                        </form>
 
+                        <!-- Inline edit -->
+                        @if (Model.EditingTaskId == task.Id)
+                        {
+                            <form method="post"
+                                  asp-page-handler="UpdateTask"
+                                  style="display:inline">
+
+                                <input type="hidden" name="listId" value="@Model.SelectedListId" />
+                                <input type="hidden" name="taskId" value="@task.Id" />
+
+                                <input type="text"
+                                       name="EditedTaskDescription"
+                                       value="@task.Description"
+                                       autofocus />
+
+                                <button type="submit">💾</button>
+                            </form>
+                        }
+                        else
+                        {
                             <span style="@(task.IsCompleted ? "text-decoration:line-through" : "")">
                                 @task.Description
                             </span>
-                        </form>
 
+                            <!-- Edit button (pencil) -->
+                            <form method="post"
+                                  asp-page-handler="StartEditTask"
+                                  style="display:inline">
+                                <input type="hidden" name="taskId" value="@task.Id" />
+                                <input type="hidden" name="listId" value="@Model.SelectedListId" />
+                                <button type="submit" style="all:unset; cursor:pointer;">✏️</button>
+                            </form>
+                        }
+
+                        <!-- Delete -->
                         <form method="post"
                               asp-page-handler="DeleteTask"
                               style="display:inline">

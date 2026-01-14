@@ -71,6 +71,14 @@ namespace ToDoWebApplication.Application.Services
             return list.ToDto();
         }
 
+        public void UpdateList(int listId, string newName)
+        {
+            if (!_repository.Exists(listId))
+                throw new ListNotFoundException(listId);
+
+            _repository.Update(listId, newName);
+        }
+
         public void RemoveList(int listId)
         {
             _repository.Remove(listId);

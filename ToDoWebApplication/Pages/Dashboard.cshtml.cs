@@ -25,6 +25,18 @@ namespace ToDoWebApplication.Pages
         [BindProperty]
         public int? SelectedListId { get; set; }
 
+        [BindProperty]
+        public int? EditingTaskId { get; set; }
+
+        [BindProperty]
+        public string? EditedTaskDescription { get; set; }
+
+        [BindProperty]
+        public int? EditingListId { get; set; }
+
+        [BindProperty]
+        public string? EditedListName { get; set; }
+
 
         public DashboardModel(IListService lists, ITaskService tasks, IListApplicationService listApplicationService)
         {
@@ -67,6 +79,31 @@ namespace ToDoWebApplication.Pages
             return RedirectToPage();
         }
 
+        public IActionResult OnPostStartEditList(int listId)
+        {
+            EditingListId = listId;
+            Lists = _lists.GetAll();
+
+            // Если выбран этот список, показываем его задачи
+            SelectedListId = listId;
+            Tasks = _tasks.GetAllTaskByListId(listId);
+
+            return Page();
+        }
+
+
+        public IActionResult OnPostUpdateList(int listId)
+        {
+            if (string.IsNullOrWhiteSpace(EditedListName))
+            {
+                return RedirectToPage(); // или просто не обновляем
+            }
+
+            _lists.UpdateList(listId, EditedListName);
+
+            return RedirectToPage();
+        }
+
         public IActionResult OnPostCreateTask()
         {
             if (SelectedListId == null || string.IsNullOrWhiteSpace(NewTaskDescription))
@@ -86,6 +123,35 @@ namespace ToDoWebApplication.Pages
                 taskId,
                 description: null,
                 isCompleted: isCompleted
+            );
+
+            return RedirectToPage(new { listId });
+        }
+
+        public IActionResult OnPostStartEditTask(int taskId, int listId)
+        {
+            EditingTaskId = taskId;
+            SelectedListId = listId;
+
+            Lists = _lists.GetAll();
+            Tasks = _tasks.GetAllTaskByListId(listId);
+
+            return Page();
+        }
+
+
+        public IActionResult OnPostUpdateTask(int listId, int taskId)
+        {
+            if (string.IsNullOrWhiteSpace(EditedTaskDescription))
+            {
+                return RedirectToPage(new { listId });
+            }
+
+            _tasks.UpdateTask(
+                listId,
+                taskId,
+                description: EditedTaskDescription,
+                isCompleted: null
             );
 
             return RedirectToPage(new { listId });

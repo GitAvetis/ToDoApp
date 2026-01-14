@@ -15,8 +15,7 @@ namespace ToDoWebApplication.Application.Services.Interfaces
         public void RemoveList(int listId);
         public IReadOnlyList<ListDto> GetRootLists();
         public IReadOnlyList<ListDto> GetChildLists(int parentId);
-
-
+        public void UpdateList(int listId, string newName);
 
     }
 }

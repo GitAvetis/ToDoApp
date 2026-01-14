@@ -1,4 +1,5 @@
-﻿using ToDoWebApplication.Application.Repositories.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using ToDoWebApplication.Application.Repositories.Interfaces;
 using ToDoWebApplication.Domain.Exceptions;
 using ToDoWebApplication.Domain.Models;
 
@@ -48,6 +49,14 @@ namespace ToDoWebApplication.Repositories.InMemory
             };
             _lists.Add(list);
             return list;
+        }
+
+        public void Update(int listId, string newName)
+        {
+            var list = _lists.FirstOrDefault(l => l.Id == listId)
+                ?? throw new ListNotFoundException(listId);
+
+            list.Name = newName;
         }
         public void Remove(int listId)
         {

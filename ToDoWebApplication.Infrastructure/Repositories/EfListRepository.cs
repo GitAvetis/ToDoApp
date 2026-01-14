@@ -48,6 +48,15 @@ namespace ToDoWebApplication.Infrastructure.Repositories
             return list;
         }
 
+        public void Update(int listId, string newName)
+        {
+            var list = _context.Lists.FirstOrDefault(l => l.Id == listId)
+                ?? throw new ListNotFoundException(listId);
+
+            list.Name = newName;
+            _context.SaveChanges();
+        }
+
         public void Remove(int listId)
         {
             var list = GetById(listId);
