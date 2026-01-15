@@ -4,12 +4,16 @@
 
 <div style="display:flex; gap:20px">
 
+    <!-- LEFT: LISTS -->
     <div style="width:250px; border-right:1px solid #ccc">
         <h3>Lists</h3>
 
+        <!-- Create list -->
         <form method="post" asp-page-handler="CreateList">
-            <input asp-for="NewListName" placeholder="New list name" />
-            <button type="submit">Add</button>
+            <input asp-for="NewListName"
+                   placeholder="New list name"
+                   autofocus />
+            <button>Add</button>
         </form>
 
         <ul>
@@ -18,26 +22,38 @@
                 <li>
                     @if (Model.EditingListId == list.Id)
                     {
-                        <form method="post" asp-page-handler="UpdateList" style="display:inline">
+                        <form method="post"
+                              asp-page-handler="UpdateList"
+                              style="display:inline">
+
                             <input type="hidden" name="listId" value="@list.Id" />
-                            <input type="text" name="EditedListName" value="@list.Name" autofocus />
-                            <button type="submit">💾</button>
+
+                            <input type="text"
+                                   name="EditedListName"
+                                   value="@list.Name"
+                                   autofocus
+                                   onkeydown="cancelEditOnEscape(event)" />
+
+                            <button>💾</button>
                         </form>
                     }
                     else
                     {
-                        <a asp-page="/Dashboard" asp-route-listId="@list.Id">
+                        <a asp-page="/Dashboard"
+                           asp-route-listId="@list.Id">
                             @list.Name
                         </a>
 
-                        <!-- Edit button -->
-                        <form method="post" asp-page-handler="StartEditList" style="display:inline">
+                        <form method="post"
+                              asp-page-handler="StartEditList"
+                              style="display:inline">
                             <input type="hidden" name="listId" value="@list.Id" />
-                            <button type="submit" style="all:unset; cursor:pointer;">✏️</button>
+                            <button style="all:unset; cursor:pointer;">✏️</button>
                         </form>
 
-                        <!-- Delete button -->
-                        <form method="post" asp-page-handler="DeleteList" style="display:inline">
+                        <form method="post"
+                              asp-page-handler="DeleteList"
+                              style="display:inline">
                             <input type="hidden" name="listId" value="@list.Id" />
                             <button>❌</button>
                         </form>
@@ -45,17 +61,20 @@
                 </li>
             }
         </ul>
-       
     </div>
 
+    <!-- RIGHT: TASKS -->
     <div style="flex:1">
         <h3>Tasks</h3>
 
         @if (Model.SelectedListId != null)
         {
+            <!-- Create task -->
             <form method="post" asp-page-handler="CreateTask">
                 <input type="hidden" asp-for="SelectedListId" />
-                <input asp-for="NewTaskDescription" />
+                <input asp-for="NewTaskDescription"
+                       placeholder="New task"
+                       autofocus />
                 <button>Add task</button>
             </form>
 
@@ -67,8 +86,10 @@
                         <form method="post"
                               asp-page-handler="ToggleTask"
                               style="display:inline">
+
                             <input type="hidden" name="listId" value="@Model.SelectedListId" />
                             <input type="hidden" name="taskId" value="@task.Id" />
+
                             <input type="checkbox"
                                    name="isCompleted"
                                    value="true"
@@ -89,9 +110,10 @@
                                 <input type="text"
                                        name="EditedTaskDescription"
                                        value="@task.Description"
-                                       autofocus />
+                                       autofocus
+                                       onkeydown="cancelEditOnEscape(event)" />
 
-                                <button type="submit">💾</button>
+                                <button>💾</button>
                             </form>
                         }
                         else
@@ -100,13 +122,12 @@
                                 @task.Description
                             </span>
 
-                            <!-- Edit button (pencil) -->
                             <form method="post"
                                   asp-page-handler="StartEditTask"
                                   style="display:inline">
                                 <input type="hidden" name="taskId" value="@task.Id" />
                                 <input type="hidden" name="listId" value="@Model.SelectedListId" />
-                                <button type="submit" style="all:unset; cursor:pointer;">✏️</button>
+                                <button style="all:unset; cursor:pointer;">✏️</button>
                             </form>
                         }
 
@@ -124,9 +145,16 @@
         }
         else
         {
-            <p>Select a task list</p>
+            <p>Select a list</p>
         }
-
     </div>
 
 </div>
+
+<script>
+    function cancelEditOnEscape(event) {
+        if (event.key === "Escape") {
+            window.location.href = window.location.pathname;
+        }
+    }
+</script>
