@@ -1,25 +1,32 @@
-# 1 Сборка проекта
+# =========================
+# BUILD STAGE
+# =========================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Копируем csproj и восстанавливаем зависимости
-COPY ["ToDoWebApplication.csproj", "./"]
-COPY ["../ToDoWebApplication.Application/ToDoWebApplication.Application.csproj", "../ToDoWebApplication.Application/"]
-COPY ["../ToDoWebApplication.Contracts/ToDoWebApplication.Contracts.csproj", "../ToDoWebApplication.Contracts/"]
-COPY ["../ToDoWebApplication.Domain/ToDoWebApplication.Domain.csproj", "../ToDoWebApplication.Domain/"]
-COPY ["../ToDoWebApplication.Infrastructure/ToDoWebApplication.Infrastructure.csproj", "../ToDoWebApplication.Infrastructure/"]
+# Копируем проекты
+COPY ToDoWebApplication/ ToDoWebApplication/
+COPY ToDoWebApplication.Application/ ToDoWebApplication.Application/
+COPY ToDoWebApplication.Domain/ ToDoWebApplication.Domain/
+COPY ToDoWebApplication.Contracts/ ToDoWebApplication.Contracts/
+COPY ToDoWebApplication.Infrastructure/ ToDoWebApplication.Infrastructure/
 
-RUN dotnet restore "ToDoWebApplication.csproj"
+# Restore
+RUN dotnet restore ToDoWebApplication/ToDoWebApplication.csproj
 
-# Копируем всё остальное
-COPY . .
+# Publish
+RUN dotnet publish ToDoWebApplication/ToDoWebApplication.csproj \
+    -c Release \
+    -o /app/publish
 
-WORKDIR "/src/ToDoWebApplication"
-RUN dotnet publish "ToDoWebApplication.csproj" -c Release -o /app/publish
-
-# 2 Runtime контейнер
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# =========================
+# RUNTIME STAGE
+# =========================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
+
 COPY --from=build /app/publish .
-EXPOSE 80
+
+EXPOSE 8080
+
 ENTRYPOINT ["dotnet", "ToDoWebApplication.dll"]

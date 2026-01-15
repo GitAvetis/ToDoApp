@@ -1,34 +1,41 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16
-    container_name: todo_db
     environment:
+      POSTGRES_DB: todo_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pearlibl
-      POSTGRES_DB: todo_db
+    volumes:
+      - todo_db_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
 
   migrate:
     image: mcr.microsoft.com/dotnet/sdk:8.0
-    container_name: todo_migrate
+    working_dir: /src
+    volumes:
+      - .:/src
     depends_on:
       - db
-    working_dir: /app
-    volumes:
-      - ./ToDoWebApplication:/app
-    entrypoint: >
-      /bin/bash -c "
-      until pg_isready -h db -p 5432; do
-        echo 'Waiting for PostgreSQL...'
-        sleep 2
-      done
-      echo 'PostgreSQL is ready. Applying migrations...'
-      dotnet tool install --global dotnet-ef --version 8.0.11
-      export PATH=\"$PATH:/root/.dotnet/tools\"
-      dotnet ef database update --project /app/ToDoWebApplication.Infrastructure/ToDoWebApplication.Infrastructure.csproj --startup-project /app/ToDoWebApplication/ToDoWebApplication.csproj
+    environment:
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=todo_db;Username=postgres;Password=pearlibl
+    command: >
+      sh -c "
+      dotnet tool install --global dotnet-ef --version 8.0.11 &&
+      export PATH=\"$PATH:/root/.dotnet/tools\" &&
+      dotnet ef database update
+        --project ToDoWebApplication.Infrastructure
+        --startup-project ToDoWebApplication
       "
+  web:
+    build: .
+    depends_on:
+      - migrate
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=todo_db;Username=postgres;Password=pearlibl
+    ports:
+      - "8080:8080"
+
+volumes:
+  todo_db_data:
