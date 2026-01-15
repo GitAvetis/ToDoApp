@@ -4,18 +4,22 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Копируем проекты
-COPY ToDoWebApplication/ ToDoWebApplication/
-COPY ToDoWebApplication.Application/ ToDoWebApplication.Application/
-COPY ToDoWebApplication.Domain/ ToDoWebApplication.Domain/
-COPY ToDoWebApplication.Contracts/ ToDoWebApplication.Contracts/
-COPY ToDoWebApplication.Infrastructure/ ToDoWebApplication.Infrastructure/
+# Копируем только файлы проектов (для лучшего кэширования)
+COPY ["ToDoWebApplication/ToDoWebApplication.csproj", "ToDoWebApplication/"]
+COPY ["ToDoWebApplication.Application/ToDoWebApplication.Application.csproj", "ToDoWebApplication.Application/"]
+COPY ["ToDoWebApplication.Domain/ToDoWebApplication.Domain.csproj", "ToDoWebApplication.Domain/"]
+COPY ["ToDoWebApplication.Contracts/ToDoWebApplication.Contracts.csproj", "ToDoWebApplication.Contracts/"]
+COPY ["ToDoWebApplication.Infrastructure/ToDoWebApplication.Infrastructure.csproj", "ToDoWebApplication.Infrastructure/"]
+COPY ["ToDoWebApplication/ToDoWebApplication.sln", "."]
 
-# Restore
-RUN dotnet restore ToDoWebApplication/ToDoWebApplication.csproj
+# Восстанавливаем зависимости основного проекта
+RUN dotnet restore "ToDoWebApplication/ToDoWebApplication.csproj"
 
-# Publish
-RUN dotnet publish ToDoWebApplication/ToDoWebApplication.csproj \
+# Копируем весь исходный код
+COPY . .
+
+# Публикуем приложение
+RUN dotnet publish "ToDoWebApplication/ToDoWebApplication.csproj" \
     -c Release \
     -o /app/publish
 

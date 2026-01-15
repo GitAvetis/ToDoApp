@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:16
@@ -9,28 +11,17 @@ services:
       - todo_db_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  migrate:
-    image: mcr.microsoft.com/dotnet/sdk:8.0
-    working_dir: /src
-    volumes:
-      - .:/src
-    depends_on:
-      - db
-    environment:
-      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=todo_db;Username=postgres;Password=pearlibl
-    command: >
-      sh -c "
-      dotnet tool install --global dotnet-ef --version 8.0.11 &&
-      export PATH=\"$PATH:/root/.dotnet/tools\" &&
-      dotnet ef database update
-        --project ToDoWebApplication.Infrastructure
-        --startup-project ToDoWebApplication
-      "
   web:
     build: .
     depends_on:
-      - migrate
+      db:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=todo_db;Username=postgres;Password=pearlibl
