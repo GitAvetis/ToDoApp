@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ToDoWebApplication.Domain.Models;
+using ToDoWebApplication.Infrastructure.Entitys;
 
 namespace ToDoWebApplication.Infrastructure.Persistence
 {
@@ -7,6 +8,7 @@ namespace ToDoWebApplication.Infrastructure.Persistence
     {
         public DbSet<ListModel> Lists => Set<ListModel>();//переменные для таблиц из базы
         public DbSet<TaskModel> Tasks => Set<TaskModel>();
+        public DbSet<UserEntity> Users => Set<UserEntity>();
 
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options) { }
