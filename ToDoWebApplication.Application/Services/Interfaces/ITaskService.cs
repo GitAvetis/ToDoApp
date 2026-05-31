@@ -4,12 +4,12 @@ namespace ToDoWebApplication.Application.Services.Interfaces
 {
     public interface ITaskService
     {
-        IReadOnlyList<TaskDto> GetAllTaskByListId(int listId);
-        TaskDto GetById(int listId, int taskId);
-        TaskDto AddTask(int listId, string taskDescription);
+        IReadOnlyList<TaskDto> GetAllTaskByListId(int listId, Guid userId);
+        TaskDto GetById(int listId, int taskId, Guid userId);
+        TaskDto AddTask(int listId, string taskDescription, Guid userId);
         //void ReplaceTask(int listId, int taskId, string description, bool isCompleted);
-        void UpdateTask(int listId, int taskId, string? description, bool? isCompleted);
-        void RemoveTask(int listId, int taskId);
-        int RemoveByListId(int listId);
+        void UpdateTask(int listId, int taskId, string? description, bool? isCompleted, Guid userId);
+        void RemoveTask(int listId, int taskId, Guid userId);
+        int RemoveByListId(int listId, Guid userId);
     }
 }

@@ -14,24 +14,24 @@ namespace ToDoWebApplication.Application.Services
             _listService = listService;
             _taskService = taskService;
         }
-        public ListDto CreateChildList(int parentListId, string name, ListType type)
+        public ListDto CreateChildList(int parentListId, Guid userId, string name, ListType type)
         {
-            var parent = _listService.GetDomainById(parentListId);
+            var parent = _listService.GetDomainById(parentListId, userId);
 
             if (parent.Type != ListType.Container)
                 throw new InvalidOperationException(
                     "Нельзя добавлять вложенные списки в список задач"
                 );
 
-            return _listService.AddChildList(name, parentListId);
+            return _listService.AddChildList(name, parentListId, userId);
         }
 
-        public void CascadeRemoveList(int listId)
+        public void CascadeRemoveList(int listId, Guid userId)
         {
             // Remove all tasks associated with the list
-            _listService.GetById(listId);// Ensure the list exists
-            _taskService.RemoveByListId(listId);
-            _listService.RemoveList(listId);
+            _listService.GetById(listId, userId);// Ensure the list exists
+            _taskService.RemoveByListId(listId, userId);
+            _listService.RemoveList(listId, userId);
         }
     }
 }

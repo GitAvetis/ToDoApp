@@ -33,18 +33,19 @@ namespace ToDoWebApplication.Infrastructure.Repositories
         }
 
 
-        public ListModel Add(string listName, ListType type, int? parentListId = null)
+        public ListModel Add(string listName, ListType type, Guid userId, int? parentListId = null)
         {
             if (parentListId == 0)  
                 parentListId = null; 
             var list = new ListModel 
             { 
                 Name = listName, 
-                Type = type, 
+                Type = type,
+                UserId = userId,
                 ParentListId = parentListId
             };
             _context.Lists.Add(list);
-            _context.SaveChanges();// синхронизирует с настоящей базой PostgreSQL.
+            _context.SaveChanges();
             return list;
         }
 

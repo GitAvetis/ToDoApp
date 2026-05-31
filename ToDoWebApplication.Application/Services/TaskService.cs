@@ -2,8 +2,6 @@
 using ToDoWebApplication.Application.Repositories.Interfaces;
 using ToDoWebApplication.Application.Services.Interfaces;
 using ToDoWebApplication.Contracts.DTOs;
-using ToDoWebApplication.Domain.Exceptions;
-using ToDoWebApplication.Domain.Models;
 
 namespace ToDoWebApplication.Application.Services
 {
@@ -18,65 +16,47 @@ namespace ToDoWebApplication.Application.Services
             _listService = listService;
         }
 
-        private void EnsureListExists(int listId)
+        public IReadOnlyList<TaskDto> GetAllTaskByListId(int listId, Guid userId)
         {
-            if (!_listService.Exists(listId))
-                throw new ListNotFoundException(listId);
-        }
-
-        public IReadOnlyList<TaskDto> GetAllTaskByListId(int listId)
-        {
-            EnsureListExists(listId);
+            _listService.GetDomainById(listId, userId);
             var tasks = _taskRepository.GetAllByListId(listId)
                 .Select(task => task.ToDto()).ToList();
             return tasks;
         }
 
-        public TaskDto GetById(int listId, int taskId)
+        public TaskDto GetById(int listId, int taskId, Guid userId)
         {
-            EnsureListExists(listId);
+            _listService.GetDomainById(listId, userId);
             var task = _taskRepository.GetById(listId, taskId);
             return task.ToDto();
         }
 
-        //public TaskDto AddTask(int listId, string taskDescription)
-        //{
-        //    var list = _listService.GetDomainById(listId);
-
-        //    if (list.Type != ListType.Tasks)
-        //        throw new TaskInContainerListException(listId);
-
-        //    var task = _taskRepository.Add(listId, taskDescription);
-        //    return task.ToDto();
-        //}
-
-        public TaskDto AddTask(int listId, string taskDescription)
+        public TaskDto AddTask(int listId, string taskDescription, Guid userId)
         {
-            var list = _listService.GetDomainById(listId);
+            var list = _listService.GetDomainById(listId, userId);
 
             // list ВСЕГДА TaskList
             var task = _taskRepository.Add(listId, taskDescription);
             return task.ToDto();
         }
 
-        public void RemoveTask(int listId, int taskId)
+        public void RemoveTask(int listId, int taskId, Guid userId)
         {
-            EnsureListExists(listId);
+            _listService.GetDomainById(listId, userId);
             _taskRepository.Remove(listId, taskId);
         }
 
-        public void UpdateTask(int listId, int taskId, string? description, bool? isCompleted)
+        public void UpdateTask(int listId, int taskId, string? description, bool? isCompleted, Guid userId)
         {
-            EnsureListExists(listId);
+            _listService.GetDomainById(listId, userId);
             _taskRepository.Update(listId, taskId, description, isCompleted);
 
         }
 
-        public int RemoveByListId(int listId)
+        public int RemoveByListId(int listId, Guid userId)
         {
-            EnsureListExists(listId);
+            _listService.GetDomainById(listId, userId);
             return _taskRepository.RemoveByListId(listId);
         }
-
     }
 }

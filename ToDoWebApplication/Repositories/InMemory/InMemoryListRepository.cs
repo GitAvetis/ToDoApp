@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ToDoWebApplication.Application.Repositories.Interfaces;
+﻿using ToDoWebApplication.Application.Repositories.Interfaces;
 using ToDoWebApplication.Domain.Exceptions;
 using ToDoWebApplication.Domain.Models;
 
@@ -29,15 +28,7 @@ namespace ToDoWebApplication.Repositories.InMemory
             return _lists.AsReadOnly();
         }
 
-
-        //public ListModel Add(string name)
-        //{
-        //    _lastId++;
-        //    var list = new ListModel { Id = _lastId, Name = name };
-        //    _lists.Add(list);
-        //    return list;
-        //}
-        public ListModel Add(string listName, ListType type, int? parentListId = null)
+        public ListModel Add(string listName, ListType type, Guid userId, int? parentListId = null)
         {
             _lastId++;
             var list = new ListModel
@@ -45,6 +36,7 @@ namespace ToDoWebApplication.Repositories.InMemory
                 Id = _lastId,
                 Name = listName,
                 Type = type,
+                UserId = userId,
                 ParentListId = parentListId
             };
             _lists.Add(list);

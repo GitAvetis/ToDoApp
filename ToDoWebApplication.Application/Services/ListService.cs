@@ -21,68 +21,72 @@ namespace ToDoWebApplication.Application.Services
             return _repository.Exists(listId);
         }
 
-        public IReadOnlyList<ListDto> GetRootLists()
+        public IReadOnlyList<ListDto> GetRootLists(Guid userId)
         {
             return _repository.GetAll()
-                .Where(l => l.ParentListId == null)
+                .Where(l => l.ParentListId == null && l.UserId == userId)
                 .Select(l => l.ToDto())
                 .ToList();
         }
 
-        public IReadOnlyList<ListDto> GetChildLists(int parentId)
+        public IReadOnlyList<ListDto> GetChildLists(int parentId, Guid userId)
         {
             return _repository.GetAll()
-                .Where(l => l.ParentListId == parentId)
+                .Where(l => l.ParentListId == parentId && l.UserId == userId)
                 .Select(l => l.ToDto())
                 .ToList();
         }
-        public ListDto GetById(int listId)
+        public ListDto GetById(int listId, Guid userId)
         {
             ListModel list = _repository.GetById(listId);
+            if (list.UserId != userId)
+                throw new ListNotFoundException(listId);
             return list.ToDto();
         }
         /// <summary>
         /// Только для внутреннего использования другими сервисами, не для контроллеров.
         /// </summary>
-        public ListModel GetDomainById(int listId)
+        public ListModel GetDomainById(int listId, Guid userId)
         {
-            return _repository.GetById(listId);
+            ListModel list = _repository.GetById(listId);
+                if (list.UserId != userId)
+                    throw new ListNotFoundException(listId);
+            return list;
         }
 
-        public IReadOnlyList<ListDto> GetAll()
+        public IReadOnlyList<ListDto> GetAll(Guid userId)
         {
             return _repository.GetAll()
+            .Where(list => list.UserId == userId)
             .Select(list => list.ToDto()).ToList();
         }
 
-        public ListDto AddRootList(string name)
+        public ListDto AddRootList(string name, Guid userId)
         {
-            ListModel list = _repository.Add(name, ListType.Container, null);
+            ListModel list = _repository.Add(name, ListType.Container, userId);
             return list.ToDto();
         }
 
-        public ListDto AddChildList(string name, int parentListId)
+        public ListDto AddChildList(string name, int parentListId, Guid userId)
         {
-            ListModel parent = GetDomainById(parentListId);
+            ListModel parent = GetDomainById(parentListId, userId);
             if (parent.Type != ListType.Container)
                 throw new TaskListParentMustBeContainerException(parentListId);
 
-            ListModel list = _repository.Add(name, ListType.Tasks, parentListId);
+            ListModel list = _repository.Add(name, ListType.Tasks, userId, parentListId);
             return list.ToDto();
         }
 
-        public void UpdateList(int listId, string newName)
+        public void UpdateList(int listId, string newName, Guid userId)
         {
-            if (!_repository.Exists(listId))
-                throw new ListNotFoundException(listId);
-
+            ListModel list = GetDomainById(listId, userId);
             _repository.Update(listId, newName);
         }
 
-        public void RemoveList(int listId)
+        public void RemoveList(int listId, Guid userId)
         {
+            ListModel list = GetDomainById(listId, userId); 
             _repository.Remove(listId);
-
         }
     }
 }
