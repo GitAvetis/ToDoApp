@@ -89,5 +89,13 @@ namespace ToDoWebApplication.Application.Services
                 RefreshToken = newRefreshToken
             };
         }
+
+        public async Task<UserModel?> AuthenticateAsync(string email, string password)
+        {
+            var user = await _userRepository.GetByLoginAsync(email);
+            if (user == null || !user.ValidatePassword(password))
+                return null;
+            return user;
+        }
     }
 }

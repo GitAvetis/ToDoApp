@@ -65,6 +65,16 @@ namespace ToDoWebApplication.Di
             builder.Services.AddScoped<IListApplicationService, ListApplicationService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
             builder.Services.AddScoped<JwtProvider>();
 
@@ -83,6 +93,12 @@ namespace ToDoWebApplication.Di
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(jwtOptions!.SecretKey))
                     };
+                })
+               .AddCookie("Cookies", options =>
+                {
+                    options.LoginPath = "/Login";
+                    options.AccessDeniedPath = "/Login";
+                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
                 });
 
             builder.Services.AddAuthorization();

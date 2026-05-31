@@ -32,6 +32,8 @@ namespace ToDoWebApplication
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseHttpsRedirection();
+            
+            app.UseCors("AllowAll");
 
             app.UseAuthentication();
             app.UseAuthorization();

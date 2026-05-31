@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ToDoWebApplication.Application.Services.Interfaces;
@@ -5,38 +6,29 @@ using ToDoWebApplication.Contracts.DTOs;
 
 namespace ToDoWebApplication.Pages
 {
+    [Authorize(AuthenticationSchemes = "Cookies")]
     public class DashboardModel : PageModel
     {
         private readonly IListService _lists;
         private readonly ITaskService _tasks;
         private readonly IListApplicationService _listApplicationService;
 
-        public IReadOnlyList<ListDto> Lists { get; private set; }
-        public IReadOnlyList<TaskDto> Tasks { get; private set; }
-
-        //public int? SelectedListId { get; private set; }
-
+        public IReadOnlyList<ListDto> Lists { get; set; }
+        public IReadOnlyList<TaskDto> Tasks { get; set; }
         [BindProperty]
         public string NewListName { get; set; }
-
         [BindProperty]
         public string NewTaskDescription { get; set; }
-
         [BindProperty]
         public int? SelectedListId { get; set; }
-
         [BindProperty]
         public int? EditingTaskId { get; set; }
-
         [BindProperty]
         public string? EditedTaskDescription { get; set; }
-
         [BindProperty]
         public int? EditingListId { get; set; }
-
         [BindProperty]
         public string? EditedListName { get; set; }
-
 
         public DashboardModel(IListService lists, ITaskService tasks, IListApplicationService listApplicationService)
         {
@@ -159,8 +151,8 @@ namespace ToDoWebApplication.Pages
             {
                 return RedirectToPage(new { listId });
             }
-
             var userId = GetCurrentUserId();
+
             _tasks.UpdateTask(
                 listId,
                 taskId,
