@@ -38,6 +38,11 @@ namespace ToDoWebApplication.Middlewares
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await context.Response.WriteAsJsonAsync(new { Message = ex.Message });
             }
+            catch(UnauthorizedAccessException)
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsync("Unauthorized access.");
+            }
             catch (Exception)
             {
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;

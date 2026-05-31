@@ -45,9 +45,16 @@ namespace ToDoWebApplication.Pages
             _listApplicationService = listApplicationService;
         }
 
+        private Guid GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            return Guid.Parse(userIdClaim);
+        }
+
         public void OnGet(int? listId)
         {
-            Lists = _lists.GetAll();
+            var userId = GetCurrentUserId();
+            Lists = _lists.GetAll(userId);
 
             if (!listId.HasValue)
             {
@@ -64,7 +71,7 @@ namespace ToDoWebApplication.Pages
             }
 
             SelectedListId = listId;
-            Tasks = _tasks.GetAllTaskByListId(listId.Value);
+            Tasks = _tasks.GetAllTaskByListId(listId.Value, userId);
         }
 
         public IActionResult OnPostCreateList()
@@ -74,7 +81,8 @@ namespace ToDoWebApplication.Pages
                 return RedirectToPage();
             }
 
-            _lists.AddRootList(NewListName);
+            var userId = GetCurrentUserId();
+            _lists.AddRootList(NewListName, userId);
 
             return RedirectToPage();
         }
@@ -82,12 +90,12 @@ namespace ToDoWebApplication.Pages
         public IActionResult OnPostStartEditList(int listId)
         {
             EditingListId = listId;
-            Lists = _lists.GetAll();
+            var userId = GetCurrentUserId();
+            Lists = _lists.GetAll(userId);
 
             // Если выбран этот список, показываем его задачи
             SelectedListId = listId;
-            Tasks = _tasks.GetAllTaskByListId(listId);
-
+            Tasks = _tasks.GetAllTaskByListId(listId, userId);
             return Page();
         }
 
@@ -99,7 +107,8 @@ namespace ToDoWebApplication.Pages
                 return RedirectToPage(); // или просто не обновляем
             }
 
-            _lists.UpdateList(listId, EditedListName);
+            var userId = GetCurrentUserId();
+            _lists.UpdateList(listId, EditedListName, userId);
 
             return RedirectToPage();
         }
@@ -111,18 +120,22 @@ namespace ToDoWebApplication.Pages
                 return RedirectToPage();
             }
 
-            _tasks.AddTask(SelectedListId.Value, NewTaskDescription);
+            var userId = GetCurrentUserId();
+            _tasks.AddTask(SelectedListId.Value, NewTaskDescription, userId);
 
             return RedirectToPage(new { listId = SelectedListId });
         }
 
         public IActionResult OnPostToggleTask(int listId, int taskId, bool isCompleted)
         {
+            var userId = GetCurrentUserId();
+
             _tasks.UpdateTask(
                 listId,
                 taskId,
                 description: null,
-                isCompleted: isCompleted
+                isCompleted: isCompleted,
+                userId: userId
             );
 
             return RedirectToPage(new { listId });
@@ -132,9 +145,9 @@ namespace ToDoWebApplication.Pages
         {
             EditingTaskId = taskId;
             SelectedListId = listId;
-
-            Lists = _lists.GetAll();
-            Tasks = _tasks.GetAllTaskByListId(listId);
+            var userId = GetCurrentUserId();
+            Lists = _lists.GetAll(userId);
+            Tasks = _tasks.GetAllTaskByListId(listId, userId);
 
             return Page();
         }
@@ -147,11 +160,13 @@ namespace ToDoWebApplication.Pages
                 return RedirectToPage(new { listId });
             }
 
+            var userId = GetCurrentUserId();
             _tasks.UpdateTask(
                 listId,
                 taskId,
                 description: EditedTaskDescription,
-                isCompleted: null
+                isCompleted: null,
+                userId: userId
             );
 
             return RedirectToPage(new { listId });
@@ -159,14 +174,16 @@ namespace ToDoWebApplication.Pages
 
         public IActionResult OnPostDeleteList(int listId)
         {
-            _listApplicationService.CascadeRemoveList(listId);
+            var userId = GetCurrentUserId();
+            _listApplicationService.CascadeRemoveList(listId, userId);
             return RedirectToPage("/Dashboard");
         }
 
 
         public IActionResult OnPostDeleteTask(int taskId, int listId)
         {
-            _tasks.RemoveTask(listId, taskId);
+            var userId = GetCurrentUserId();
+            _tasks.RemoveTask(listId, taskId, userId);
             return RedirectToPage(new { listId });
         }
     }
